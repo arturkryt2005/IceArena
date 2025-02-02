@@ -17,8 +17,5 @@ namespace IceArena.Data.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public ICollection<Player>? Players { get; set; }
-        public ICollection<Match>? MatchesAsTeam1 { get; set; }
-        public ICollection<Match>? MatchesAsTeam2 { get; set; }
     }
 }

@@ -21,19 +21,15 @@ namespace IceArena.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<User>().ToTable("users");
+            modelBuilder.Entity<Team>().ToTable("team");
+            modelBuilder.Entity<Player>().ToTable("player");
+            modelBuilder.Entity<Match>().ToTable("match");
+            modelBuilder.Entity<Booking>().ToTable("booking");
+            modelBuilder.Entity<Subscription>().ToTable("subscription");
+            modelBuilder.Entity<Announcement>().ToTable("announcement");
 
-            modelBuilder.Entity<Match>()
-                .HasOne(m => m.Team1)
-                .WithMany(t => t.MatchesAsTeam1)
-                .HasForeignKey(m => m.Team1Id)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Match>()
-                .HasOne(m => m.Team2)
-                .WithMany(t => t.MatchesAsTeam2)
-                .HasForeignKey(m => m.Team2Id)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
+
 }

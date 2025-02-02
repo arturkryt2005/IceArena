@@ -20,7 +20,6 @@ namespace IceArena.Data.Models
 
         public DateTime CreatedAt { get; set; }
 
-        // Навигационные свойства
         public User? User { get; set; }
     }
 }

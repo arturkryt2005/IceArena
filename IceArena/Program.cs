@@ -1,30 +1,46 @@
 using IceArena.Data;
+using IceArena.Data.Repositories.Implementations;
+using IceArena.Data.Repositories.Interfaces;
+using IceArena.Services.Implementations;
+using IceArena.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<IceArenaDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Add services to the container.
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddSwaggerGen(); 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "IceArena API V1");
+    });
+
+    var swaggerUrl = "https://localhost:7118/swagger"; 
+    using (var process = new System.Diagnostics.Process())
+    {
+        process.StartInfo = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = swaggerUrl,
+            UseShellExecute = true
+        };
+        process.Start();
+    }
 }
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
