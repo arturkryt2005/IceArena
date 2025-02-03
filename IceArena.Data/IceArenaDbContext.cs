@@ -22,12 +22,12 @@ namespace IceArena.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("users");
-            modelBuilder.Entity<Team>().ToTable("team");
-            modelBuilder.Entity<Player>().ToTable("player");
-            modelBuilder.Entity<Match>().ToTable("match");
-            modelBuilder.Entity<Booking>().ToTable("booking");
-            modelBuilder.Entity<Subscription>().ToTable("subscription");
-            modelBuilder.Entity<Announcement>().ToTable("announcement");
+            modelBuilder.Entity<Team>().ToTable("teams");
+            modelBuilder.Entity<Player>().ToTable("players");
+            modelBuilder.Entity<Match>().ToTable("matches");
+            modelBuilder.Entity<Booking>().ToTable("bookings");
+            modelBuilder.Entity<Subscription>().ToTable("subscriptions");
+            modelBuilder.Entity<Announcement>().ToTable("announcements");
 
         }
     }

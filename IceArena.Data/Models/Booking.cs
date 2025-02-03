@@ -20,6 +20,6 @@ namespace IceArena.Data.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public User? User { get; set; }
+        public Team? User { get; set; }
     }
 }

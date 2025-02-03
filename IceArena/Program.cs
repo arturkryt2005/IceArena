@@ -14,6 +14,9 @@ builder.Services.AddDbContext<IceArenaDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<ITeamService, TeamService>();
+
 
 builder.Services.AddEndpointsApiExplorer(); 
 builder.Services.AddSwaggerGen(); 
