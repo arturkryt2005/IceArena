@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace IceArena.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class PlayerController : Controller
     {
         private readonly IPlayerService _playerService;

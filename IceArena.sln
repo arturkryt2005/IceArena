@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceArena", "IceArena\IceArena.csproj", "{0EFC7E64-CB6A-4B2B-8329-C895A9814817}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceArena.Data", "IceArena.Data\IceArena.Data.csproj", "{582C5F62-E02E-4401-B2AA-678EA3E11A79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceArena.Web", "IceArena.Web\IceArena.Web.csproj", "{4EE0A371-E7E0-431D-9BE1-098CC6310E4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{582C5F62-E02E-4401-B2AA-678EA3E11A79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{582C5F62-E02E-4401-B2AA-678EA3E11A79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{582C5F62-E02E-4401-B2AA-678EA3E11A79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EE0A371-E7E0-431D-9BE1-098CC6310E4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EE0A371-E7E0-431D-9BE1-098CC6310E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EE0A371-E7E0-431D-9BE1-098CC6310E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EE0A371-E7E0-431D-9BE1-098CC6310E4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
