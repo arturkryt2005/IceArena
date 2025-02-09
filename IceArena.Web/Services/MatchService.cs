@@ -26,7 +26,6 @@ namespace IceArena.Web.Services
 
                 // проверка
                 if (response == null) return new List<MatchDto>();
-                Console.WriteLine($"Ответ от API: {System.Text.Json.JsonSerializer.Serialize(response)}");
 
                 // маппим
                 return _mapper.Map<List<MatchDto>>(response);

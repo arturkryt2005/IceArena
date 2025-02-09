@@ -23,6 +23,11 @@ namespace IceArena.Data.Repositories.Implementations
             return await _context.Users.FindAsync(id);
         }
 
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _context.Users.ToListAsync();
@@ -30,7 +35,8 @@ namespace IceArena.Data.Repositories.Implementations
 
         public async Task AddAsync(User user)
         {
-            await _context.Users.AddAsync(user);
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+            await _context.AddAsync(user);
         }
 
         public async Task UpdateAsync(User user)

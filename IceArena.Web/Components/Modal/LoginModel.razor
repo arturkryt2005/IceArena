@@ -1,0 +1,43 @@
+﻿@using IceArena.Data.Requests
+@inject AuthService AuthService
+@rendermode InteractiveServer
+
+<div class="modal-overlay" @onclick="CloseModal" style="@(IsOpen ? "display: flex;" : "display: none;")">
+    <div class="modal-content" @onclick:stopPropagation>
+        <h2>Авторизация</h2>
+        <input type="email" placeholder="Email" @bind="email" />
+        <input type="password" placeholder="Пароль" @bind="password" />
+        <div class="modal-actions">
+            <button @onclick="Login">Войти</button>
+            <button @onclick="CloseModal">Отмена</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+    private string email = "";
+    private string password = "";
+
+    private async Task Login()
+    {
+        try
+        {
+            var request = new LoginRequest { Email = email, Password = password };
+            await AuthService.Login(request);
+            await IsOpenChanged.InvokeAsync(false);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при входе: {ex.Message}");
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}
