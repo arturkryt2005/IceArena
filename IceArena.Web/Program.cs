@@ -33,6 +33,7 @@ builder.Services.AddHttpClient<AuthService>(client =>
     client.BaseAddress = new Uri("https://localhost:7118/");
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 });
+
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorization(options =>
 {
@@ -47,6 +48,8 @@ builder.Services.AddAuthorization(options =>
         return user.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "user");
     }));
 });
+
+
 
 builder.Services.AddAuthentication();
 builder.Services.AddCors(options =>

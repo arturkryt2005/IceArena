@@ -1,10 +1,19 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @using IceArena.Web.Interfaces
 @using IceArena.Web.Models
 @using IceArena.Web.Services
 @inject IMatchService MatchService
+@inject IJSRuntime JSRuntime
+
+        <div class="carousel">
+            <div class="arrow left">&lt;</div>
+            <img src="images/ledoviy.jpg" alt="Картинка">
+            <div class="arrow right">&gt;</div>
+        </div>
 
 <h3>Список матчей</h3>
+
 
 @if (matches == null)
 {
@@ -26,5 +35,20 @@ else
     protected override async Task OnInitializedAsync()
     {
         matches = await MatchService.GetMatchesAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("initializeCarousel");
+            }
+            catch (JSException ex)
+            {
+                Console.WriteLine($"Error initializing carousel: {ex.Message}");
+            }
+        }
     }
 }

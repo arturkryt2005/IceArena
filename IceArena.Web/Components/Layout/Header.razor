@@ -1,14 +1,15 @@
 ﻿@using IceArena.Web.Components.Modal
 @rendermode InteractiveServer
 
-<header class="header">
-    <button @onclick="OpenLoginModal"> Войти</button>
+<header>
+    <img src="images/ledoviylogo.png" class="logoled"/>
     <nav>
-        <a href="/">Главная</a>
-        <a href="/matches">Матчи</a>
-        <a href="/booking">Бронирование</a>
-        <a href="/profile">Профиль</a>
+        <a href="/" class="headera">Главная</a>
+        <a href="/matches" class="headera">Матчи</a>
+        <a href="/booking" class="headera">Бронирование</a>
+        <a href="/profile" class="headera">Профиль</a>
     </nav>
+    <button @onclick="OpenLoginModal" class="vhodavtor"> Войти</button>
     <LoginModel IsOpen="@isLoginOpen" IsOpenChanged="@((value) => isLoginOpen = value)" />
 </header>
 
@@ -19,4 +20,6 @@
     {
         isLoginOpen = true;
     }
+
+    
 }
