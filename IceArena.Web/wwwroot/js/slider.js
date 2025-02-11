@@ -38,3 +38,5 @@
         changeImage(currentIndex, 'left');
     }, 5000);
 };
+
+

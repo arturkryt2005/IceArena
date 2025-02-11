@@ -1,0 +1,35 @@
+﻿@using Blazored.LocalStorage
+@using IceArena.Web.Components.Modal
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService LocalStorage
+
+<div class="modal-overlay2 @(IsOpenLogout ? "show" : "")" @onclick="CancelLogout" style="@(IsOpenLogout ? string.Empty : "display: none;")">
+    <div class="custom-modal" @onclick:stopPropagation>
+        <p>Вы уверены, что хотите выйти?</p>
+        <button class="confirm-btn" @onclick="Logout">Да</button>
+        <button class="cancel-btn" @onclick="CancelLogout">Нет</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsOpenLogout { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChangedLogout { get; set; }
+
+    private async Task Logout()
+    {
+        await LocalStorage.ClearAsync();
+        await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
+        await IsOpenChangedLogout.InvokeAsync(false);
+        StateHasChanged();
+    }
+
+    private async Task CancelLogout()
+    {
+        await IsOpenChangedLogout.InvokeAsync(false);
+    }
+}

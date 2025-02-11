@@ -1,0 +1,79 @@
+﻿body {
+}
+
+.basezagolovok{
+    color: white;
+    font-family: Montserrat;
+}
+
+.basezag{
+    text-align:center;
+    margin-top: 10vh;
+    color: white;
+    font-family: Montserrat;
+}
+
+.matchesdiv {
+    display: flex;
+    justify-content: center;
+}
+
+.match-table {
+    width: 60%;
+    border-collapse: collapse;
+    background-color: antiquewhite;
+    margin-top: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: 'Montserrat', sans-serif}
+
+    .match-table th {
+        background-color: #ff6347;
+        color: white;
+        padding: 12px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        border-bottom: 2px solid #ff4500;
+    }
+
+    .match-table td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
+    }
+
+    .match-table tr:hover {
+        background-color: #ffe4e1;
+        cursor: pointer;
+    }
+
+    .match-table tbody tr:nth-child(even) {
+        background-color: #fff8dc;
+    }
+
+    .match-table tbody tr:nth-child(odd) {
+        background-color: #fffaf0;
+    }
+
+    .match-table td:first-child,
+    .match-table th:first-child {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .match-table td:last-child,
+    .match-table th:last-child {
+        border-radius: 0 10px 10px 0;
+    }
+
+
+    .match-table .important {
+        font-weight: bold;
+        color: #ff4500;
+    }
+
+    .match-table .highlight {
+        background-color: #ffebcd;
+    }

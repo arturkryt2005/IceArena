@@ -11,6 +11,7 @@ using MudBlazor.Services;
 using System.Security.Claims;
 using Blazored.LocalStorage;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,14 +28,17 @@ builder.Services.AddHttpClient<IMatchService, MatchService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7118/api/");
 });
+builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpClient<AuthService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7118/");
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 });
-
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireAssertion(context =>
@@ -50,7 +54,6 @@ builder.Services.AddAuthorization(options =>
 });
 
 
-
 builder.Services.AddAuthentication();
 builder.Services.AddCors(options =>
 {
@@ -61,6 +64,7 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
 var app = builder.Build();
 app.UseCors("AllowAll");

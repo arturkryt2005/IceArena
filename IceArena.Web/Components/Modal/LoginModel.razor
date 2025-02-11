@@ -1,8 +1,12 @@
-﻿@using IceArena.Data.Requests
+﻿@using Blazored.LocalStorage
+@using IceArena.Data.Requests
+@using Microsoft.AspNetCore.Components.Authorization
 @inject AuthService AuthService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService LocalStorage
 @rendermode InteractiveServer
 
-<div class="modal-overlay" @onclick="CloseModal" style="@(IsOpen ? "display: flex;" : "display: none;")">
+<div class="modal-overlay @(IsOpen ? "show" : "")" @onclick="CloseModal" style="@(IsOpen ? "" : "display: none;")">
     <div class="modal-content" @onclick:stopPropagation>
         <h2>Авторизация</h2>
         <input type="email" placeholder="Email" @bind="email" />
@@ -17,8 +21,10 @@
 @code {
     [Parameter]
     public bool IsOpen { get; set; }
+
     [Parameter]
     public EventCallback<bool> IsOpenChanged { get; set; }
+
     private string email = "";
     private string password = "";
 
@@ -27,7 +33,13 @@
         try
         {
             var request = new LoginRequest { Email = email, Password = password };
-            await AuthService.Login(request);
+            var response = await AuthService.Login(request);
+
+            await LocalStorage.SetItemAsStringAsync("authToken", response.Token);
+            await LocalStorage.SetItemAsStringAsync("username", response.Username);
+            await LocalStorage.SetItemAsStringAsync("role", response.Role);
+
+            await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(response.Username, response.Role);
             await IsOpenChanged.InvokeAsync(false);
         }
         catch (Exception ex)

@@ -12,6 +12,8 @@ header {
     align-items: center;
     padding: 10px 3%;
     position: relative;
+    position: fixed;
+    z-index:5;
 }
 
 .logoled{
@@ -38,10 +40,16 @@ nav {
     color:gold;
 }
 
-.vhodavtor{
-    border:none;
-    background-color:gold;
+.vhodavtor {
+    border: none;
+    background-color: gold;
     padding: 8px 28px;
     border-radius: 7px;
     color: white;
+    transition: background-color 0.3s, color 0.3s;
 }
+
+    .vhodavtor:hover {
+        color: gold;
+        background-color: white;
+    }

@@ -4,27 +4,95 @@
 @using IceArena.Web.Services
 @inject IMatchService MatchService
 
-<h3>Список матчей</h3>
+<h3 class="basezagolovok">Список матчей</h3>
 
-@if (matches == null)
+@if (pastMatches == null || futureMatches == null)
 {
     <p>Загрузка...</p>
 }
 else
 {
-    <ul>
-        @foreach (var match in matches)
-        {
-            <li>@match.Team1Id vs @match.Team2Id - @match.MatchDate.ToString("dd.MM.yyyy")</li>
-        }
-    </ul>
+    @if (pastMatches.Any())
+    {
+        <h4 class="basezag">Прошедшие матчи</h4>
+        <div class="matchesdiv">
+            <table class="match-table">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Команда 1</th>
+                        <th>Команда 2</th>
+                        <th>Место проведения</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var match in pastMatches)
+                    {
+                        <tr>
+                            <td>@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@(match.Team1Id == default ? "Неизвестно" : match.Team1Id)</td>
+                            <td>@(match.Team2Id == default ? "Неизвестно" : match.Team2Id)</td>
+                            <td>@(match.Location ?? "Не указано")</td>
+                            <td>@(match.Result ?? "Планируется")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (futureMatches.Any())
+    {
+        <h4>Будущие матчи</h4>
+        <div class="matchesdiv">
+            <table class="match-table">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Команда 1</th>
+                        <th>Команда 2</th>
+                        <th>Место проведения</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var match in futureMatches)
+                    {
+                        <tr>
+                            <td>@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@(match.Team1Id == default ? "Неизвестно" : match.Team1Id)</td>
+                            <td>@(match.Team2Id == default ? "Неизвестно" : match.Team2Id)</td>
+                            <td>@(match.Location ?? "Не указано")</td>
+                            <td>@(match.Result ?? "Планируется")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (!pastMatches.Any() && !futureMatches.Any())
+    {
+        <p>Нет доступных матчей.</p>
+    }
 }
 
 @code {
     private List<MatchDto>? matches;
+    private List<MatchDto> pastMatches = new();
+    private List<MatchDto> futureMatches = new();
 
     protected override async Task OnInitializedAsync()
     {
         matches = await MatchService.GetMatchesAsync();
+
+        if (matches != null)
+        {
+            var now = DateTime.Now;
+
+            pastMatches = matches.Where(m => m.MatchDate < now).ToList();
+            futureMatches = matches.Where(m => m.MatchDate >= now).ToList();
+        }
     }
 }

@@ -1,25 +1,100 @@
-﻿@using IceArena.Web.Components.Modal
+﻿@using Blazored.LocalStorage
+@using IceArena.Web.Components.Modal
+@using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService LocalStorage
+@using System.Security.Claims
 
 <header>
-    <img src="images/ledoviylogo.png" class="logoled"/>
     <nav>
-        <a href="/" class="headera">Главная</a>
-        <a href="/matches" class="headera">Матчи</a>
-        <a href="/booking" class="headera">Бронирование</a>
-        <a href="/profile" class="headera">Профиль</a>
+        @if (!isInitialized)
+        {
+            <p>Загрузка...</p>
+        }
+        else
+        {
+            @if (role == "admin")
+            {
+                <a href="/admin/dashboard" class="headera">Админ-панель</a>
+                <a href="/admin/matches" class="headera">Управление матчами</a>
+                <a href="/admin/bookings" class="headera">Бронирования</a>
+                <a href="/admin/users" class="headera">Пользователи</a>
+            }
+            else
+            {
+                <a href="/" class="headera">Главная</a>
+                <a href="/matches" class="headera">Матчи</a>
+                <a href="/booking" class="headera">Бронирование</a>
+                <a href="/team" class="headera">Наша команда</a>
+                <a href="/profile" class="headera">Профиль</a>
+            }
+        }
     </nav>
-    <button @onclick="OpenLoginModal" class="vhodavtor"> Войти</button>
+
+    @if (isInitialized)
+    {
+        @if (isAuthenticated)
+        {
+            <button class="vhodavtor" @onclick="ConfirmLogout">Выйти</button>
+        }
+        else
+        {
+            <button class="vhodavtor" @onclick="OpenLoginModal">Войти</button>
+        }
+    }
+
     <LoginModel IsOpen="@isLoginOpen" IsOpenChanged="@((value) => isLoginOpen = value)" />
+    <OutModel IsOpenLogout="@showLogoutConfirm" IsOpenChangedLogout="@((value) => showLogoutConfirm = value)" />
 </header>
 
 @code {
+    private bool isAuthenticated;
+    private string role = "";
     private bool isLoginOpen = false;
+    private bool isInitialized = false;
+    private bool showLogoutConfirm = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            AuthStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            UpdateUserState(authState.User);
+
+            isInitialized = true;
+            StateHasChanged();
+        }
+    }
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        var authState = await task;
+        UpdateUserState(authState.User);
+        StateHasChanged();
+    }
+
+    private void UpdateUserState(ClaimsPrincipal user)
+    {
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;  
+        role = user.FindFirst(ClaimTypes.Role)?.Value ?? "user";
+    }
+
+    private void ConfirmLogout()
+    {
+        showLogoutConfirm = true;
+        StateHasChanged();
+    }
 
     private void OpenLoginModal()
     {
         isLoginOpen = true;
     }
 
-    
+    public void Dispose()
+    {
+        AuthStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
 }
