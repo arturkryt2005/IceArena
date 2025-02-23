@@ -35,7 +35,6 @@ namespace IceArena.Data.Repositories.Implementations
 
         public async Task AddAsync(User user)
         {
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
             await _context.AddAsync(user);
         }
 

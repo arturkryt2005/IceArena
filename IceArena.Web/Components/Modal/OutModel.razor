@@ -4,6 +4,7 @@
 @rendermode InteractiveServer
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
 
 <div class="modal-overlay2 @(IsOpenLogout ? "show" : "")" @onclick="CancelLogout" style="@(IsOpenLogout ? string.Empty : "display: none;")">
     <div class="custom-modal" @onclick:stopPropagation>
@@ -26,6 +27,8 @@
         await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
         await IsOpenChangedLogout.InvokeAsync(false);
         StateHasChanged();
+        Navigation.NavigateTo("/");
+
     }
 
     private async Task CancelLogout()

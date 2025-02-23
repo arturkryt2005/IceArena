@@ -30,6 +30,7 @@ builder.Services.AddHttpClient<IMatchService, MatchService>(client =>
 });
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthService>();
+
 builder.Services.AddHttpClient<AuthService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7118/");

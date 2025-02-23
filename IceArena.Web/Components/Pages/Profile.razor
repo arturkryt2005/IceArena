@@ -1,7 +1,44 @@
 ﻿@page "/profile"
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@rendermode InteractiveServer
 
-<h3>Profile</h3>
+<h3 class="profileh1">Профиль</h3>
+
+@if (!isInitialized)
+{
+    <p class="profiletext">Загрузка...</p>
+}
+else if (!isAuthenticated)
+{
+    <p class="profiletext2">Вы не авторизованы.</p>
+    <a href="/" class="profilea">Вернуться на главную</a>
+}
+else
+{
+    <div>
+        <p class ="profiletext2"><strong>Email:</strong> @userEmail</p>
+        <p class="profiletext2"><strong>Роль:</strong> @role</p>
+    </div>
+}
 
 @code {
+    private bool isAuthenticated = false;
+    private bool isInitialized = false;
+    private string userEmail = "Неизвестно";
+    private string role = "Пользователь";
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await LocalStorage.GetItemAsStringAsync("authToken");
+            userEmail = await LocalStorage.GetItemAsStringAsync("email") ?? "Неизвестно";
+            role = await LocalStorage.GetItemAsStringAsync("role") ?? "Пользователь";
+
+            isAuthenticated = !string.IsNullOrEmpty(token);
+            isInitialized = true;
+
+            StateHasChanged();
+        }
+    }
 }

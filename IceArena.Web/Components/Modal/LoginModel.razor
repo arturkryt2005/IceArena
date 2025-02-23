@@ -1,18 +1,51 @@
-﻿@using Blazored.LocalStorage
+﻿@using Newtonsoft.Json
+@using Blazored.LocalStorage
 @using IceArena.Data.Requests
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthService AuthService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService LocalStorage
-@rendermode InteractiveServer
+@inject NavigationManager Navigation
 
 <div class="modal-overlay @(IsOpen ? "show" : "")" @onclick="CloseModal" style="@(IsOpen ? "" : "display: none;")">
     <div class="modal-content" @onclick:stopPropagation>
-        <h2>Авторизация</h2>
-        <input type="email" placeholder="Email" @bind="email" />
-        <input type="password" placeholder="Пароль" @bind="password" />
+        <h2>@(isRegisterMode ? "Регистрация" : "Вход")</h2>
+
+        <div class="input-group">
+            <input type="email" placeholder="Email" @bind="email" class="@(emailError != null ? "error-border" : "")" />
+            @if (!string.IsNullOrEmpty(emailError))
+            {
+                <p class="error-message">@emailError</p>
+            }
+        </div>
+
+        @if (isRegisterMode)
+        {
+            <div class="input-group">
+                <input type="text" placeholder="Имя пользователя" @bind="username" class="@(usernameError != null ? "error-border" : "")" />
+                @if (!string.IsNullOrEmpty(usernameError))
+                {
+                    <p class="error-message">@usernameError</p>
+                }
+            </div>
+        }
+
+        <div class="input-group">
+            <input type="password" placeholder="Пароль" @bind="password" class="@(passwordError != null ? "error-border" : "")" />
+            @if (!string.IsNullOrEmpty(passwordError))
+            {
+                <p class="error-message">@passwordError</p>
+            }
+        </div>
+
+        @if (!string.IsNullOrEmpty(serverError))
+        {
+            <p class="server-error">@serverError</p>
+        }
+
         <div class="modal-actions">
-            <button @onclick="Login">Войти</button>
+            <button @onclick="Submit">@(isRegisterMode ? "Зарегистрироваться" : "Войти")</button>
+            <button @onclick="ToggleMode">@(isRegisterMode ? "Уже есть аккаунт?" : "Регистрация")</button>
             <button @onclick="CloseModal">Отмена</button>
         </div>
     </div>
@@ -27,29 +60,133 @@
 
     private string email = "";
     private string password = "";
+    private string username = "";
 
-    private async Task Login()
+    private string? emailError;
+    private string? passwordError;
+    private string? usernameError;
+    private string? serverError;
+
+    private bool isRegisterMode = false;
+
+    private async Task Submit()
     {
+        ClearErrors();
+        bool isValid = ValidateForm();
+
+        if (!isValid)
+        {
+            return;
+        }
+
         try
         {
-            var request = new LoginRequest { Email = email, Password = password };
-            var response = await AuthService.Login(request);
+            if (isRegisterMode)
+            {
+                var request = new RegisterRequest
+                    {
+                        Email = email,
+                        Password = password,
+                        Username = username
+                    };
 
-            await LocalStorage.SetItemAsStringAsync("authToken", response.Token);
-            await LocalStorage.SetItemAsStringAsync("username", response.Username);
-            await LocalStorage.SetItemAsStringAsync("role", response.Role);
+                var json = JsonConvert.SerializeObject(request);
+                Console.WriteLine($"Отправляемые данные: {json}");
 
-            await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(response.Username, response.Role);
+                var response = await AuthService.Register(request);
+                if (response == null) throw new Exception("Ошибка регистрации");
+
+                await LocalStorage.SetItemAsStringAsync("authToken", response.Token);
+                await LocalStorage.SetItemAsStringAsync("username", response.Username);
+                await LocalStorage.SetItemAsStringAsync("email", response.Email);
+                await LocalStorage.SetItemAsStringAsync("role", response.Role);
+
+                await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(response.Username, response.Role);
+            }
+            else
+            {
+                var request = new LoginRequest
+                    {
+                        Email = email,
+                        Password = password
+                    };
+
+                var json = JsonConvert.SerializeObject(request);
+                Console.WriteLine($"Отправляемые данные: {json}");
+
+                var response = await AuthService.Login(request);
+
+                await LocalStorage.SetItemAsStringAsync("authToken", response.Token);
+                await LocalStorage.SetItemAsStringAsync("username", response.Username);
+                await LocalStorage.SetItemAsStringAsync("email", response.Email);
+                await LocalStorage.SetItemAsStringAsync("role", response.Role);
+
+                await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(response.Username, response.Role);
+            }
+
             await IsOpenChanged.InvokeAsync(false);
+            Navigation.NavigateTo(isRegisterMode ? "/" : (await LocalStorage.GetItemAsStringAsync("role") == "admin" ? "dashboard" : "/"));
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при входе: {ex.Message}");
+            serverError = $"Ошибка: {ex.Message}";
+            Console.WriteLine($"Ошибка: {ex.Message}");
         }
+    }
+
+    private bool ValidateForm()
+    {
+        bool isValid = true;
+
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains("@") || !email.Contains("."))
+        {
+            emailError = "Введите корректный email.";
+            isValid = false;
+        }
+
+        if (isRegisterMode)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+            {
+                passwordError = "Пароль должен содержать минимум 6 символов.";
+                isValid = false;
+            }
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                passwordError = "Пароль не может быть пустым.";
+                isValid = false;
+            }
+        }
+
+        if (isRegisterMode && string.IsNullOrWhiteSpace(username))
+        {
+            usernameError = "Введите имя пользователя.";
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    private void ClearErrors()
+    {
+        emailError = null;
+        passwordError = null;
+        usernameError = null;
+        serverError = null;
+    }
+
+    private void ToggleMode()
+    {
+        isRegisterMode = !isRegisterMode;
+        ClearErrors();
     }
 
     private async Task CloseModal()
     {
         await IsOpenChanged.InvokeAsync(false);
+        ClearErrors();
     }
 }

@@ -1,6 +1,4 @@
-﻿using IceArena.Data.Models;
-using IceArena.Data.Repositories.Interfaces;
-using IceArena.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -12,6 +10,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BCrypt.Net;
+using IceArena.Data.Models;
+using IceArena.Data.Repositories.Interfaces;
 using IceArena.Data.Requests;
 
 namespace IceArena.Controllers
@@ -22,13 +22,51 @@ namespace IceArena.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
-        private readonly ILogger<AuthController> _logger; // Добавили логгер
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(IUserRepository userRepository, IConfiguration configuration, ILogger<AuthController> logger)
         {
             _userRepository = userRepository;
             _configuration = configuration;
-            _logger = logger; // Инициализируем логгер
+            _logger = logger;
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            if (await _userRepository.GetUserByEmailAsync(request.Email) != null)
+            {
+                return BadRequest("Email уже используется");
+            }
+
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            _logger.LogInformation("Хеш пароля при регистрации: {PasswordHash}", passwordHash);
+
+            var user = new User
+            {
+                Username = request.Username,
+                Email = request.Email,
+                PasswordHash = passwordHash,
+                Role = "user",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _userRepository.AddAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            var savedUser = await _userRepository.GetUserByEmailAsync(request.Email);
+            _logger.LogInformation("Хеш пароля после сохранения в базу данных: {PasswordHash}", savedUser.PasswordHash);
+
+            var token = GenerateJwtToken(user);
+
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                UserId = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role
+            });
         }
 
         [HttpPost("login")]
@@ -40,15 +78,19 @@ namespace IceArena.Controllers
             if (user == null)
             {
                 _logger.LogWarning("Не найден пользователь с Email: {Email}", request.Email);
-                return Unauthorized();
+                return Unauthorized("Пользователь не найден");
             }
 
             _logger.LogInformation("Найден пользователь: {Username}", user.Username);
+            _logger.LogInformation("Хеш пароля из базы данных: {PasswordHash}", user.PasswordHash);
 
-            if (!VerifyPasswordHash(request.Password, user.PasswordHash))
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+            _logger.LogInformation("Результат проверки пароля: {IsPasswordValid}", isPasswordValid);
+
+            if (!isPasswordValid)
             {
                 _logger.LogWarning("Неверный пароль для пользователя: {Email}", request.Email);
-                return Unauthorized();
+                return Unauthorized("Неверный пароль");
             }
 
             _logger.LogInformation("Пароль верный, генерируем токен...");
@@ -68,6 +110,42 @@ namespace IceArena.Controllers
             return Ok(response);
         }
 
+        //[Authorize(Roles = "admin")] 
+        [HttpPost("register-admin")] 
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest request) 
+        {
+            if (await _userRepository.GetUserByEmailAsync(request.Email) != null)
+            {
+                return BadRequest("Email уже используется");
+            }
+
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            _logger.LogInformation("Хеш пароля при регистрации админа: {PasswordHash}", passwordHash);
+
+            var user = new User
+            {
+                Username = request.Username,
+                Email = request.Email,
+                PasswordHash = passwordHash,
+                Role = "admin", 
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _userRepository.AddAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            var token = GenerateJwtToken(user);
+
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                UserId = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role
+            });
+        }
+
         private string GenerateJwtToken(User user)
         {
             var claims = new List<Claim>
@@ -80,6 +158,7 @@ namespace IceArena.Controllers
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
             var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["Jwt:ExpireDays"]));
 
             var token = new JwtSecurityToken(
@@ -91,11 +170,6 @@ namespace IceArena.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        private bool VerifyPasswordHash(string password, string passwordHash)
-        {
-            return BCrypt.Net.BCrypt.Verify(password, passwordHash);
         }
     }
 }

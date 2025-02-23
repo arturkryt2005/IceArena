@@ -1,7 +1,69 @@
 ﻿@page "/users"
+@using IceArena.Data.Requests
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
 
-<h3>users</h3>
+
+<div class="dark-theme">
+    <h3 class="page-title">Добавить админа</h3>
+
+    <div class="form-container">
+        <div class="input-group">
+            <input type="email" placeholder="Email" @bind="email" class="form-input" />
+        </div>
+
+        <div class="input-group">
+            <input type="text" placeholder="Имя пользователя" @bind="username" class="form-input" />
+        </div>
+
+        <div class="input-group">
+            <input type="password" placeholder="Пароль" @bind="password" class="form-input" />
+        </div>
+
+        <button @onclick="RegisterAdmin" class="submit-button">Добавить админа</button>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-message">@errorMessage</div>
+        }
+    </div>
+</div>
 
 @code {
+    private string email = "";
+    private string password = "";
+    private string username = "";
+    private string errorMessage = "";
 
+    private async Task RegisterAdmin()
+    {
+        Console.WriteLine("Метод RegisterAdmin вызван");
+        var request = new RegisterRequest
+            {
+                Email = email,
+                Password = password,
+                Username = username
+            };
+
+        try
+        {
+            var response = await AuthService.RegisterAdmin(request);
+            if (response != null)
+            {
+                Console.WriteLine("Админ успешно добавлен!");
+                Navigation.NavigateTo("/users", forceLoad: true); 
+                StateHasChanged(); 
+            }
+            else
+            {
+                errorMessage = "Ошибка при регистрации админа.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка: {ex.Message}";
+            Console.WriteLine(errorMessage);
+        }
+    }
 }

@@ -29,6 +29,7 @@ public class AuthService
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
+
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception("Invalid login attempt.");
@@ -39,6 +40,7 @@ public class AuthService
         await _localStorage.SetItemAsStringAsync("authToken", result.Token);
         await _localStorage.SetItemAsync("userId", result.UserId);
         await _localStorage.SetItemAsStringAsync("username", result.Username);
+        await _localStorage.SetItemAsStringAsync("email", result.Email);
         await _localStorage.SetItemAsStringAsync("role", result.Role);
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
@@ -54,5 +56,57 @@ public class AuthService
     public async Task<string> GetToken()
     {
         return await _localStorage.GetItemAsStringAsync("authToken");
+    }
+
+    public async Task<AuthResponse?> Register(RegisterRequest request)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(request);
+            Console.WriteLine($"Отправляемые данные: {json}");
+
+            var response = await _httpClient.PostAsJsonAsync("api/auth/register", request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Ошибка регистрации: {errorContent}");
+                return null;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при регистрации: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task<AuthResponse?> RegisterAdmin(RegisterRequest request)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(request);
+            Console.WriteLine($"Отправляемые данные для регистрации админа: {json}");
+
+   
+            var response = await _httpClient.PostAsJsonAsync("api/auth/register-admin", request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Ошибка регистрации админа: {errorContent}");
+                return null;
+            }
+
+            
+            var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при регистрации админа: {ex.Message}");
+            throw;
+        }
     }
 }

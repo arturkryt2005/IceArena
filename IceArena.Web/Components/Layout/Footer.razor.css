@@ -1,2 +1,95 @@
 ﻿body {
 }
+
+
+footer{
+    height: 40vh;
+    width: 100%;
+    margin-top: 4%;
+
+}
+
+.divfooter{
+    display:flex;
+    flex-direction:column;
+}
+
+.columns {
+    display: flex;
+    justify-content: space-around;
+    color: white;
+}
+
+.messangers{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.zagfooterdiv2{
+    font-family:Montserrat;
+    font-size: 19px;
+    color: white;
+    text-align:center;
+    margin-top:5%;
+    margin-bottom: 2%;
+}
+
+.zagfooterdiv {
+    font-family: Montserrat;
+    font-size: 19px;
+    color: white;
+    text-align: center;
+    margin-top: 5%;
+    margin-bottom: 10%;
+}
+
+.textindiv {
+    font-family: Montserrat;
+    font-size: 16px;
+    margin-bottom: 0px;
+    color:white;
+    text-decoration:none;
+}
+    .textindiv:hover{
+        border-bottom:2px solid white;
+    }
+
+.element {
+    display: flex;
+    flex-direction: column;
+    margin-right: 2%;
+    align-items: center;
+    text-decoration: none;
+    margin-right: 3%;
+    margin-top: 2%;
+    transition: transform 0.5s;
+}
+
+.element:hover{
+    transform: scale(1.1)
+}
+
+.mesp{
+    color:white;
+    text-align:center;
+    font-family:Montserrat;
+}
+
+.logoimg{
+    width: 45px;
+    height:45px;
+
+}
+
+.footover {
+    display: flex;
+    justify-content: center;
+    text-align:center;
+    margin-top: 3%;
+}
+
+.overp{
+    color:white;
+    font-family:Montserrat;
+}

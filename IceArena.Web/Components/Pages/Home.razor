@@ -1,11 +1,15 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@using Blazored.LocalStorage
 @using IceArena.Web.Interfaces
 @using IceArena.Web.Models
 @using IceArena.Web.Services
 @inject IMatchService MatchService
 @inject IJSRuntime JSRuntime
 @using IceArena.Web.Components.Modal
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService LocalStorage
 
      <div class="carousel-container">
          <div class="carousel">
@@ -16,7 +20,12 @@
         <div class="carousel-text">
             <h2 class="glavtext">Добро пожаловать в Ледовый Дворец!</h2>
         </div>
+        @if (role == ""){
         <button @onclick="OpenLoginModalAsync" class="vhodavtor">Войти</button>
+        }
+            
+
+       
         <LoginModel IsOpen="@isLoginOpen" IsOpenChanged="@((value) => isLoginOpen = value)" />  
     </div>
 
@@ -74,6 +83,10 @@ else
 
 
 @code {
+
+    private bool isAuthenticated;
+    private string role = "";
+
     private List<MatchDto>? matches;
     protected override async Task OnInitializedAsync()
     {

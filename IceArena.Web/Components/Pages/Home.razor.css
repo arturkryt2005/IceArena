@@ -15,7 +15,7 @@
 .sidebar {
     width: 25%;
     padding: 20px;
-    background-color: #ffdddd;
+    background-color: black;
     border-radius: 10px;
 }
 
@@ -63,7 +63,7 @@ li {
     width: 70%;
     padding: 20px;
     margin-left: 5%;
-    background-color: #ffeaea;
+    background-color: black;
     border-radius: 10px;
 }
 
@@ -124,7 +124,7 @@ li {
     justify-content: center;
     overflow: hidden;
     z-index: 0;
-    background: #191970;
+    background: black;
 }
 
     .carousel img {

@@ -1,7 +1,11 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: #000080 !important;
+    background-color: black !important;
+    scroll-behavior: smooth;
+    padding-top: 60px;
 }
+    
+
 
 a, .btn-link {
     color: #006bb7;

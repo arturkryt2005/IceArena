@@ -1,10 +1,18 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
 
     <Header />
     @Body
-    <Footer/>
+        @if (role == "user" || role == ""){
+            <Footer />
+        }
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code{
+    private bool isAuthenticated;
+    private string role = "";
+}
