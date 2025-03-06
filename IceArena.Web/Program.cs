@@ -15,11 +15,13 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
 builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddAutoMapper(typeof(MatchProfile));
 builder.Services.AddScoped<IMatchService, MatchService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpClient<ApiService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7118/api/");
