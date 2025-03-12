@@ -44,7 +44,7 @@ namespace IceArena.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMatch(int id)
         {
             await _matchService.DeleteMatchAsync(id);

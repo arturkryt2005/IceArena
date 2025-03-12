@@ -1,7 +1,83 @@
 ﻿@page "/matchesadmin"
+@using IceArena.Data.Models
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+@rendermode InteractiveServer
 
-<h3>Matches</h3>
+<div class="dark-theme">
+    <h1 class="page-title">Управление матчами</h1>
+
+    @if (matches == null)
+    {
+        <p class="loading-message">Загрузка...</p>
+    }
+    else if (matches.Count == 0)
+    {
+        <p class="no-matches-message">Нет активных матчей.</p>
+    }
+    else
+    {
+        <table class="matches-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Команда 1</th>
+                    <th>Команда 2</th>
+                    <th>Дата матча</th>
+                    <th>Место проведения</th>
+                    <th>Результат</th>
+                    <th>Создано</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var match in matches)
+                {
+                    <tr>
+                        <td>@match.Id</td>
+                        <td>@match.Team1?.Name</td>
+                        <td>@match.Team2?.Name</td>
+                        <td>@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@match.Location</td>
+                        <td>@match.Result</td>
+                        <td>@match.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <button class="delete-button" @onclick="() => DeleteMatch(match.Id)">Удалить</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
 
 @code {
+    private List<Match>? matches;
 
+    protected override async Task OnInitializedAsync()
+    {
+        matches = await Http.GetFromJsonAsync<List<Match>>("api/Match");
+    }
+
+    private async Task DeleteMatch(int matchId)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"api/Match/{matchId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                matches = await Http.GetFromJsonAsync<List<Match>>("api/Match");
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Ошибка при удалении матча: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Исключение при удалении матча: {ex.Message}");
+        }
+    }
 }
