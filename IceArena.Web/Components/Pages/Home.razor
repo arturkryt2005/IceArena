@@ -20,12 +20,6 @@
         <div class="carousel-text">
             <h2 class="glavtext">Добро пожаловать в Ледовый Дворец!</h2>
         </div>
-        @if (role == ""){
-        <button @onclick="OpenLoginModalAsync" class="vhodavtor">Войти</button>
-        }
-            
-
-       
         <LoginModel IsOpen="@isLoginOpen" IsOpenChanged="@((value) => isLoginOpen = value)" />  
     </div>
 

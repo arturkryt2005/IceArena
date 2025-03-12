@@ -1,0 +1,71 @@
+﻿@page "/bookings"
+@using IceArena.Data.Models
+@using IceArena.Data.Requests
+@inject IEmailService EmailService
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+@rendermode InteractiveServer
+
+<h3>Бронирования</h3>
+
+@if (bookings == null)
+{
+    <p>Загрузка...</p>
+}
+else if (bookings.Count == 0)
+{
+    <p>Нет активных бронирований.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Пользователь ID</th>
+                <th>Дата</th>
+                <th>Длительность</th>
+                <th>Статус</th>
+                <th>Создано</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in bookings)
+            {
+                <tr>
+                    <td>@booking.Id</td>
+                    <td>@booking.UserId</td>
+                    <td>@booking.Date.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@booking.Duration минут</td>
+                    <td>@booking.Status</td>
+                    <td>@booking.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<button class="btn btn-primary" @onclick="AcceptBooking">Отправить письмо</button>
+
+<p>@Message</p>
+
+@code {
+    private string Message = "";
+
+    private List<Booking>? bookings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
+    }
+
+    private async Task AcceptBooking()
+    {
+        var result = await EmailService.SendMessage();
+
+        if (result.Success)
+            NavigationManager.NavigateTo("/dashboard");
+        else
+            Message = $"Ошибка при отправке письма: {result.ErrorMessage}";
+    }
+}

@@ -1,0 +1,98 @@
+﻿@page "/users"
+@using IceArena.Data.Models
+@using IceArena.Data.Requests
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@rendermode InteractiveServer
+
+<div class="dark-theme">
+    <h3 class="page-title">Пользователи</h3>
+
+    <div class="form-container">
+        <div class="input-group">
+            <input type="email" placeholder="Email" @bind="email" class="form-input" />
+        </div>
+
+        <div class="input-group">
+            <input type="text" placeholder="Имя пользователя" @bind="username" class="form-input" />
+        </div>
+
+        <div class="input-group">
+            <input type="password" placeholder="Пароль" @bind="password" class="form-input" />
+        </div>
+
+        <button @onclick="RegisterAdmin" class="submit-button">Добавить админа</button>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-message">@errorMessage</div>
+        }
+    </div>
+
+    @if (users == null)
+    {
+        <p>Загрузка...</p>
+    }
+    else
+    {
+        <div class="users-list">
+            @foreach (var user in users)
+            {
+                <div class="user-card">
+                    <h4>@user.Username</h4>
+                    <div class="user-email">@user.Email</div>
+                    <div class="user-role">Роль: <span>@user.Role</span></div>
+                    <div class="user-created">Создан: @user.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                    <button class="delete-button" @onclick="() => DeleteUser(user.Id)">Удалить</button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string username = "";
+    private string errorMessage = "";
+    private List<User>? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await Http.GetFromJsonAsync<List<User>>("api/User");
+    }
+
+    private async Task RegisterAdmin()
+    {
+        var request = new RegisterRequest
+            {
+                Email = email,
+                Password = password,
+                Username = username
+            };
+
+        var response = await Http.PostAsJsonAsync("api/User/register", request);
+        if (response.IsSuccessStatusCode)
+        {
+            users = await Http.GetFromJsonAsync<List<User>>("api/User");
+        }
+        else
+        {
+            errorMessage = "Ошибка при добавлении пользователя.";
+        }
+    }
+
+    private async Task DeleteUser(int userId)
+    {
+        var response = await Http.DeleteAsync($"api/User/{userId}");
+        if (response.IsSuccessStatusCode)
+        {
+            users = await Http.GetFromJsonAsync<List<User>>("api/User");
+        }
+        else
+        {
+            errorMessage = "Ошибка при удалении пользователя.";
+        }
+    }
+}

@@ -1,4 +1,3 @@
-// IceArena.Web/Program.cs
 using IceArena.Web.Components;
 using IceArena.Web.Services;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +11,10 @@ using System.Security.Claims;
 using Blazored.LocalStorage;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Components.Authorization;
+using IceArena.Data.Repositories.Implementations;
+using IceArena.Data.Repositories.Interfaces;
+using IceArena.Data; 
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +23,15 @@ builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddAutoMapper(typeof(MatchProfile));
+
+builder.Services.AddDbContext<IceArenaDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+
 builder.Services.AddHttpClient<ApiService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7118/api/");
@@ -30,6 +40,7 @@ builder.Services.AddHttpClient<IMatchService, MatchService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7118/api/");
 });
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthService>();
 
@@ -40,7 +51,6 @@ builder.Services.AddHttpClient<AuthService>(client =>
 });
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
-
 
 builder.Services.AddAuthorization(options =>
 {
@@ -56,7 +66,6 @@ builder.Services.AddAuthorization(options =>
     }));
 });
 
-
 builder.Services.AddAuthentication();
 builder.Services.AddCors(options =>
 {
@@ -68,6 +77,7 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7118/") });
 
 var app = builder.Build();
 app.UseCors("AllowAll");

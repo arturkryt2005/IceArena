@@ -1,0 +1,62 @@
+﻿html, body {
+    font-family: Montserrat;
+}
+
+.bron {
+    text-align: center;
+    font-size: 50px;
+    color: white;
+    font-family: Montserrat;
+    margin-bottom: 40px;
+}
+
+.bookingsdiv{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.bookingdiv {
+    width: 30%;
+    height: auto;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 3%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid yellow;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+    .bookingdiv:hover{
+        transform: scale(1.05);
+    }
+
+    .foto {
+        width: 100%;
+        height: 300px;
+    }
+
+.imgh1{
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.nazvanie {
+    color: white;
+    text-align: center;
+    bottom: 0;
+    position: absolute;
+    z-index: 2;
+    font-family: Montserrat;
+    font-weight: 300;
+}
+
+.giperssilka {
+    text-align: center;
+    color: white;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
