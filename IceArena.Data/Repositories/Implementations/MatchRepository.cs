@@ -1,17 +1,12 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Match = IceArena.Data.Models.Match;
 
 namespace IceArena.Data.Repositories.Implementations
 {
-    public class MatchRepository:IMatchRepository
+    public class MatchRepository : IMatchRepository
     {
         private readonly IceArenaDbContext _dbContext;
 
@@ -22,12 +17,18 @@ namespace IceArena.Data.Repositories.Implementations
 
         public async Task<Match?> GetByIdAsync(int id)
         {
-            return await _dbContext.Matches.FindAsync(id);
+            return await _dbContext.Matches
+                .Include(m => m.Team1)
+                .Include(m => m.Team2)
+                .FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public async Task<IEnumerable<Match>> GetAllAsync()
         {
-            return await _dbContext.Matches.ToListAsync();
+            return await _dbContext.Matches
+                .Include(m => m.Team1)
+                .Include(m => m.Team2)
+                .ToListAsync();
         }
 
         public async Task AddAsync(Match match)
@@ -43,8 +44,8 @@ namespace IceArena.Data.Repositories.Implementations
         public async Task DeleteAsync(int id)
         {
             var match = await _dbContext.Matches.FindAsync(id);
-            if (match != null) 
-            _dbContext.Matches.Remove(match);
+            if (match != null)
+                _dbContext.Matches.Remove(match);
         }
 
         public async Task SaveChangesAsync()

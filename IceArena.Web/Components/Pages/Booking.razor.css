@@ -1,62 +1,307 @@
 ﻿html, body {
-    font-family: Montserrat;
+    font-family:Montserrat, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: linear-gradient(135deg, #1a1a1a, #2c2c2c); /* Темный градиентный фон */
+    color: white;
 }
 
 .bron {
     text-align: center;
-    font-size: 50px;
-    color: white;
-    font-family: Montserrat;
+    font-size: 60px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
     margin-bottom: 40px;
+    padding-top: 40px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    animation: fadeInUp 1.5s ease-in-out;
 }
 
-.bookingsdiv{
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bookingsdiv {
     display: flex;
-    justify-content: space-around;
+    flex-direction: row;
     flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
 }
 
 .bookingdiv {
-    width: 30%;
-    height: auto;
-    border-radius: 10px;
+    width: 45%;
+    height: 300px;
+    border-radius: 20px;
     overflow: hidden;
-    margin-bottom: 3%;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid yellow;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
-    transition: transform 0.3s;
 }
 
-    .bookingdiv:hover{
-        transform: scale(1.05);
+    .bookingdiv:hover {
+        transform: scale(1.03);
+        box-shadow: 0 12px 30px rgba(255, 215, 0, 0.6);
     }
 
-    .foto {
-        width: 100%;
-        height: 300px;
-    }
-
-.imgh1{
-    position: relative;
+.imgh1 {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 2;
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     justify-content: center;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1s ease-in-out;
 }
 
 .nazvanie {
     color: white;
-    text-align: center;
-    bottom: 0;
-    position: absolute;
-    z-index: 2;
-    font-family: Montserrat;
-    font-weight: 300;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .giperssilka {
-    text-align: center;
     color: white;
-    margin-top: 30px;
-    margin-bottom: 30px;
+    font-size: 18px;
+    text-decoration: none;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    padding: 12px 24px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
+
+    .giperssilka:hover {
+        background: linear-gradient(135deg, #FFA500, #FFD700);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(255, 165, 0, 0.6);
+    }
+
+
+@keyframes typing {
+    0% {
+        content: "З";
+    }
+
+    20% {
+        content: "За";
+    }
+
+    40% {
+        content: "Заг";
+    }
+
+    60% {
+        content: "Загр";
+    }
+
+    80% {
+        content: "Загруз";
+    }
+
+    100% {
+        content: "Загрузка доступных слотов...";
+    }
+}
+
+.loading-text::after {
+    content: "Загрузка доступных слотов...";
+    animation: typing 2s steps(10, end) infinite;
+    font-weight: bold;
+    color: #FFA500;
+    font-size: 1.2em;
+    display: block;
+    text-align: center;
+}
+
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1e1e1e;
+        color: white;
+    }
+}
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(245, 245, 245, 1));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 400px;
+    max-width: 90%;
+    animation: fadeInModal 0.5s ease-in-out;
+}
+
+    .modal-content h3 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .modal-content button {
+        background: linear-gradient(135deg, #28a745, #218838);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        margin: 10px;
+    }
+
+        .modal-content button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+    .modal-content .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+    }
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.slots-containers {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+}
+
+.blockcard {
+    background: #1e1e2e;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out;
+    width: 280px;
+}
+
+    .blockcard:hover {
+        transform: translateY(-5px);
+    }
+
+.dateee {
+    color: #ffffff;
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.slots-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.slot-card {
+    background: linear-gradient(135deg, #2a2a40, #3b3b5f);
+    border-radius: 12px;
+    padding: 15px;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+    border: 2px solid transparent;
+}
+
+    .slot-card:hover {
+        background: linear-gradient(135deg, #404060, #5a5a7a);
+        border-color: #ffd700;
+        transform: scale(1.05);
+    }
+
+
+.modal-overlay {
+    backdrop-filter: blur(10px);
+}
+.btn-primary {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary:focus {
+        outline: none;
+    }
+.modal-content {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(245, 245, 245, 1));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+    .modal-content button {
+        background: linear-gradient(135deg, #28a745, #218838);
+        color: white;
+        border: none;
+    }
+
+    .modal-content .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+    }
+
+    .modal-content button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }

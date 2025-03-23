@@ -1,54 +1,138 @@
-﻿.booking-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+﻿body {
+    background: #1a1a1a; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white; 
+    margin: 0;
     padding: 20px;
-    justify-content: center;
 }
 
-.booking-card {
-    background: #2c2c2c;
-    color: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
-    width: 300px;
+h3 {
+    font-family: Montserrat;
+    color: #ffcc00;
+    font-size: 24px;
+    margin-bottom: 20px;
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-    .booking-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+
+.booking-table {
+    font-family: Montserrat;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #2c2c2c;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+    .booking-table th, .booking-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #444; 
     }
 
-.delete-button {
-    margin-top: 10px;
-    padding: 8px 12px;
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
+    .booking-table th {
+        background-color: #333; 
+        color: #ffcc00;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 14px;
+    }
+
+    .booking-table tr:hover {
+        background-color: #3a3a3a;
+        transition: background-color 0.3s ease;
+    }
+
+.booking-row.available {
+    background-color: #2d4a2d; 
 }
 
-    .delete-button:hover {
-        background-color: #cc0000;
+.booking-row.booked {
+    background-color: #2d3a4a; 
+}
+
+.booking-row.pending {
+    background-color: #4a3d2d; 
+}
+
+.btn-primary {
+    background-color: #ffcc00; 
+    color: #1a1a1a; 
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+    .btn-primary:hover {
+        background-color: #e6b800;
         transform: translateY(-2px);
     }
 
-.ButtonYes {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease;
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+.sort-options {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-    .ButtonYes:hover {
-        background: #218838;
+    .sort-options label {
+        font-size: 16px;
+        color: #ffcc00; 
     }
+
+    .sort-options select {
+        padding: 8px 12px;
+        border-radius: 25px;
+        border: 1px solid #444; 
+        background-color: #333; 
+        font-size: 14px;
+        color: white; 
+        cursor: pointer;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .sort-options select:hover {
+            border-color: #ffcc00;
+            box-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
+        }
+
+        .sort-options select:focus {
+            outline: none;
+            border-color: #ffcc00; 
+            box-shadow: 0 0 12px rgba(255, 204, 0, 0.5);
+        }
+
+p {
+    font-size: 16px;
+    color: #ffcc00; 
+    text-align: center;
+    margin-top: 20px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.booking-table, .sort-options, p {
+    animation: fadeIn 0.5s ease-in-out;
+}

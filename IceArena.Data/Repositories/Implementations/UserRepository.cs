@@ -40,7 +40,22 @@ namespace IceArena.Data.Repositories.Implementations
 
         public async Task UpdateAsync(User user)
         {
-            _context.Users.Update(user);
+            var existingUser = await _context.Users.FindAsync(user.Id);
+            if (existingUser == null)
+            {
+                throw new Exception("Пользователь не найден.");
+            }
+
+            existingUser.Username = user.Username;
+            existingUser.Email = user.Email;
+            existingUser.Role = user.Role;
+
+            if (!string.IsNullOrEmpty(user.PasswordHash))
+            {
+                existingUser.PasswordHash = user.PasswordHash;
+            }
+
+            _context.Entry(existingUser).State = EntityState.Modified;
         }
 
         public async Task DeleteAsync(int id)

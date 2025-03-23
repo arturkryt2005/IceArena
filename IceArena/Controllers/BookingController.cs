@@ -6,7 +6,7 @@ namespace IceArena.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BookingController : Controller
+    public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
 
@@ -23,31 +23,34 @@ namespace IceArena.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllBookings()
+        public async Task<IActionResult> GetBookings()
         {
             var bookings = await _bookingService.GetBookingsAsync();
             return Ok(bookings);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddBooking([FromBody] Booking booking)
+        [HttpGet("available/{date}")]
+        public async Task<IActionResult> GetAvailableSlots([FromRoute] DateTime date)
         {
-            await _bookingService.CreateBooking(booking);
-            return CreatedAtAction(nameof(AddBooking), new {id = booking.Id}, booking);
+            DateTime utcDate = date.Kind == DateTimeKind.Unspecified
+                ? DateTime.SpecifyKind(date, DateTimeKind.Utc)
+                : date.ToUniversalTime();
+
+            var slots = await _bookingService.GetAvailableSlotsAsync(utcDate);
+            return Ok(slots);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateBooking(int id, [FromBody] Booking booking)
+        [HttpGet("available")]
+        public async Task<IActionResult> GetAvailableSlots()
         {
-            if(id != booking.Id) return BadRequest("ID mismatch");
-            await _bookingService.UpdateBooking(booking);
-            return NoContent();
+            var slots = await _bookingService.GetAvailablSlotsAsync();
+            return Ok(slots);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteBooking(int id)
+        [HttpPost("confirm/{bookingId}/{userId}")]
+        public async Task<IActionResult> ConfirmBooking(int bookingId, int userId)
         {
-            await _bookingService.DeleteBooking(id);
+            await _bookingService.ConfirmBookingAsync(bookingId, userId);
             return NoContent();
         }
     }

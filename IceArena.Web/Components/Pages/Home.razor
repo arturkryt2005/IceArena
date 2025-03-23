@@ -11,21 +11,19 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService LocalStorage
 
-     <div class="carousel-container">
-         <div class="carousel">
-            <div class="arrow left">&lt;</div>
-            <img src="images/ledoviy.jpg" alt="Картинка">
-            <div class="arrow right">&gt;</div>
-        </div>
-        <div class="carousel-text">
-            <h2 class="glavtext">Добро пожаловать в Ледовый Дворец!</h2>
-        </div>
-        <LoginModel IsOpen="@isLoginOpen" IsOpenChanged="@((value) => isLoginOpen = value)" />  
+<div class="carousel-container">
+    <div class="carousel">
+        <div class="arrow left">&lt;</div>
+        <img src="images/ledoviy.jpg" alt="Картинка">
+        <div class="arrow right">&gt;</div>
     </div>
-
+    <div class="carousel-text">
+        <h2 class="glavtext">Добро пожаловать в Ледовый Дворец!</h2>
+        <p class="secondtext">Лучшее место для отдыха и спорта</p>
+    </div>
+</div>
 
 <h3 class="zagolovki">Список матчей</h3>
-
 
 @if (matches == null)
 {
@@ -33,31 +31,31 @@
 }
 else
 {
-<div class="matchesdiv">
-    <table class="match-table">
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Команда 1</th>
-                <th>Команда 2</th>
-                <th>Место проведения</th>
-                <th>Статус</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var match in matches)
-            {
+    <div class="matchesdiv">
+        <table class="match-table">
+            <thead>
                 <tr>
-                    <td>@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>@(match.Team1Id == default ? "Неизвестно" : match.Team1Id.ToString())</td>
-                    <td>@(match.Team2Id == default ? "Неизвестно" : match.Team2Id.ToString())</td>
-                    <td>@(match.Location ?? "Не указано")</td>
-                    <td>@(match.Result ?? "Планируется")</td>
+                    <th>Дата</th>
+                    <th>Команда 1</th>
+                    <th>Команда 2</th>
+                    <th>Место проведения</th>
+                    <th>Статус</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                @foreach (var match in matches)
+                {
+                    <tr>
+                        <td>@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@(match.Team1Id == default ? "Неизвестно" : match.Team1Id.ToString())</td>
+                        <td>@(match.Team2Id == default ? "Неизвестно" : match.Team2Id.ToString())</td>
+                        <td>@(match.Location ?? "Не указано")</td>
+                        <td>@(match.Result ?? "Планируется")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 <div class="carousel-container2">
@@ -72,16 +70,12 @@ else
 </div>
 
 <div class="news">
-    
+    <p>Следите за последними новостями и событиями!</p>
 </div>
 
-
 @code {
+ private List<MatchDto>? matches;
 
-    private bool isAuthenticated;
-    private string role = "";
-
-    private List<MatchDto>? matches;
     protected override async Task OnInitializedAsync()
     {
         matches = await MatchService.GetMatchesAsync();
@@ -100,14 +94,5 @@ else
                 Console.WriteLine($"Error initializing carousel: {ex.Message}");
             }
         }
-    }
-
-    private bool isLoginOpen = false;
-
-    private async Task OpenLoginModalAsync()
-    {
-        isLoginOpen = true;
-        await Task.Yield();
-        StateHasChanged();
     }
 }

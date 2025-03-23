@@ -1,5 +1,8 @@
 ﻿@page "/profile"
+@using IceArena.Data.Models
+@using System.ComponentModel.DataAnnotations
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject HttpClient Http
 @rendermode InteractiveServer
 
 <h3 class="profileh1">Профиль</h3>
@@ -15,9 +18,57 @@ else if (!isAuthenticated)
 }
 else
 {
-    <div>
-        <p class ="profiletext2"><strong>Email:</strong> @userEmail</p>
-        <p class="profiletext2"><strong>Роль:</strong> @role</p>
+    <div class="profile-container">
+        <div class="avatar-container">
+            <img src="../images/profile.png" alt="Аватар" class="avatar" />
+        </div>
+        <div class="info-container">
+            <p class="profiletext2"><strong>Имя:</strong> @username</p>
+            <p class="profiletext2"><strong>Email:</strong> @userEmail</p>
+            <p class="profiletext2"><strong>Роль:</strong> @role</p>
+            <button class="btn btn-primary" @onclick="OpenEditModal">Редактировать</button>
+        </div>
+    </div>
+}
+
+@if (showModal)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактирование профиля</h5>
+                <button type="button" class="modal-close-button" @onclick="CloseEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <EditForm EditContext="@editContext" OnValidSubmit="@SaveUserChanges">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <label for="username">Имя</label>
+                        <InputText id="username" @bind-Value="editedUser.Username" class="form-control" />
+                        <ValidationMessage For="@(() => editedUser.Username)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <InputText id="email" @bind-Value="editedUser.Email" class="form-control" />
+                        <ValidationMessage For="@(() => editedUser.Email)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Роль</label>
+                        <InputText id="role" @bind-Value="editedUser.Role" class="form-control" />
+                        <ValidationMessage For="@(() => editedUser.Role)" />
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-button" @onclick="CloseEditModal">Закрыть</button>
+                        <button type="submit" class="save-button">Сохранить изменения</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
     </div>
 }
 
@@ -26,19 +77,87 @@ else
     private bool isInitialized = false;
     private string userEmail = "Неизвестно";
     private string role = "Пользователь";
+    private string username = "Пользователь";
+    private bool showModal = false;
+    private User editedUser = new User();
+    private string passwordHash = "";
+
+    private EditContext editContext;
+    private ValidationMessageStore validationMessageStore;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var token = await LocalStorage.GetItemAsStringAsync("authToken");
+            username = await LocalStorage.GetItemAsStringAsync("username") ?? "Неизвестно";
             userEmail = await LocalStorage.GetItemAsStringAsync("email") ?? "Неизвестно";
             role = await LocalStorage.GetItemAsStringAsync("role") ?? "Пользователь";
+            passwordHash = await LocalStorage.GetItemAsStringAsync("passwordHash") ?? "";
+
+            var userId = await LocalStorage.GetItemAsync<int>("userId");
+
+            editedUser = new User
+                {
+                    Id = userId,
+                    Username = username,
+                    Email = userEmail,
+                    Role = role,
+                    PasswordHash = passwordHash
+                };
+
+            editContext = new EditContext(editedUser);
+            validationMessageStore = new ValidationMessageStore(editContext);
 
             isAuthenticated = !string.IsNullOrEmpty(token);
             isInitialized = true;
 
             StateHasChanged();
+        }
+    }
+
+    private void OpenEditModal()
+    {
+        showModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseEditModal()
+    {
+        showModal = false;
+        StateHasChanged();
+    }
+
+    private async Task SaveUserChanges()
+    {
+        Console.WriteLine("SaveUserChanges вызван");
+
+        if (!editContext.Validate())
+        {
+            Console.WriteLine("Ошибки валидации");
+            return;
+        }
+
+        editedUser.PasswordHash = passwordHash;
+
+        var response = await Http.PutAsJsonAsync($"api/User/{editedUser.Id}", editedUser);
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Данные успешно обновлены");
+            username = editedUser.Username;
+            userEmail = editedUser.Email;
+            role = editedUser.Role;
+            await LocalStorage.SetItemAsStringAsync("username", username);
+            await LocalStorage.SetItemAsStringAsync("email", userEmail);
+            await LocalStorage.SetItemAsStringAsync("role", role);
+            showModal = false;
+            StateHasChanged();
+        }
+        else
+        {
+            Console.WriteLine("Ошибка при обновлении данных");
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(errorMessage);
         }
     }
 }

@@ -23,6 +23,17 @@ namespace IceArena.Services.Implementations
             return await _bookingRepository.GetAllAsync();
         }
 
+        public async Task<IEnumerable<Booking>> GetAvailableSlotsAsync(DateTime date)
+        {
+            return await _bookingRepository.GetAvailableSlotsAsync(date);
+        }
+
+        public async Task<IEnumerable<Booking>> GetAvailablSlotsAsync()
+        {
+            return await _bookingRepository.GetAvailablSlotsAsync();
+        }
+
+
         public async Task CreateBooking(Booking booking)
         {
             await _bookingRepository.AddAsync(booking);
@@ -39,6 +50,18 @@ namespace IceArena.Services.Implementations
         {
             await _bookingRepository.DeleteAsync(id);
             await _bookingRepository.SaveChangesAsync();
+        }
+
+        public async Task ConfirmBookingAsync(int bookingId, int userId)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking != null && booking.Status == "Available")
+            {
+                booking.UserId = userId;
+                booking.Status = "Pending Approval"; 
+                await _bookingRepository.UpdateAsync(booking);
+                await _bookingRepository.SaveChangesAsync();
+            }
         }
     }
 }

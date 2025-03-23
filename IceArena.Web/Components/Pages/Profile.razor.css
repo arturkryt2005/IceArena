@@ -1,25 +1,257 @@
 ﻿body {
+    background-color: #121212; /* Черный фон */
+    color: white; /* Белый текст */
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.profiletext{
-    color:white;
+.profile-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 30px;
+    background-color: #1e1e1e; /* Темно-серый фон */
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 100%;
+    margin: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .profile-container:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6); /* Желтая тень при наведении */
+    }
+
+.avatar-container {
+    margin-bottom: 20px;
+}
+
+.avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #ffd700; /* Желтая граница */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); /* Желтая тень */
+    }
+
+.info-container {
+    text-align: center;
+}
+
+.profiletext {
+    color: white; /* Белый текст */
     font-size: 20px;
     font-family: Montserrat;
 }
 
 .profilea {
-    color: white;
+    color: white; /* Белый текст */
     font-family: Montserrat;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
 }
 
+    .profilea:hover {
+        color: #ffd700; /* Желтый при наведении */
+    }
+
 .profiletext2 {
-    color: white;
+    color: white; /* Белый текст */
     font-size: 20px;
     font-family: Montserrat;
+    margin: 10px 0;
 }
 
 .profileh1 {
-    color: white;
+    color: white; /* Белый текст */
     font-size: 30px;
     font-family: Montserrat;
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Желтая тень */
 }
+
+.edit-button {
+    background-color: #ffd700; /* Желтый фон */
+    color: #121212; /* Черный текст */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .edit-button:hover {
+        background-color: #ccac00; /* Темно-желтый при наведении */
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4); /* Желтая тень */
+    }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Черный с прозрачностью */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+    z-index: 1000;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background-color: #1e1e1e; /* Темно-серый фон */
+    padding: 25px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid #ffd700; /* Желтая граница */
+    animation: slideIn 0.3s ease;
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px) scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-content:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6); /* Желтая тень при наведении */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    color: #ffd700; /* Желтый текст */
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Желтая тень */
+}
+
+.modal-close-button {
+    background: none;
+    border: none;
+    color: #ffd700; /* Желтый текст */
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+    .modal-close-button:hover {
+        color: #ccac00; /* Темно-желтый при наведении */
+        transform: rotate(90deg);
+    }
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #ffd700; /* Желтый текст */
+        font-size: 16px;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); /* Легкая желтая тень */
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ffd700; /* Желтая граница */
+        background-color: #333; /* Темный фон */
+        color: white; /* Белый текст */
+        font-size: 16px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .form-group input:focus {
+            border-color: #ccac00; /* Темно-желтый при фокусе */
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Желтая тень */
+        }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-button {
+    background-color: #ffd700; /* Желтый фон */
+    color: #121212; /* Черный текст */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .save-button:hover {
+        background-color: #ccac00; /* Темно-желтый при наведении */
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4); /* Желтая тень */
+    }
+
+.cancel-button {
+    background-color: #ff4444; /* Красный фон */
+    color: white; /* Белый текст */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .cancel-button:hover {
+        background-color: #cc0000; /* Темно-красный при наведении */
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255, 0, 0, 0.4); /* Красная тень */
+    }

@@ -18,7 +18,16 @@ else if (bookings.Count == 0)
 }
 else
 {
-    <table class="table">
+    <div class="sort-options">
+        <label for="sort">Сортировать по:</label>
+        <select id="sort" @bind="sortOption">
+            <option value="dateAsc">Дате (по возрастанию)</option>
+            <option value="dateDesc">Дате (по убыванию)</option>
+            <option value="status">Статусу</option>
+        </select>
+    </div>
+
+    <table class="booking-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -27,39 +36,51 @@ else
                 <th>Длительность</th>
                 <th>Статус</th>
                 <th>Создано</th>
+                <th>Подтвердить</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var booking in bookings)
+            @foreach (var booking in sortedBookings)
             {
-                <tr>
+                <tr class="booking-row @booking.Status.ToLower()">
                     <td>@booking.Id</td>
                     <td>@booking.UserId</td>
                     <td>@booking.Date.ToString("dd.MM.yyyy HH:mm")</td>
                     <td>@booking.Duration минут</td>
                     <td>@booking.Status</td>
                     <td>@booking.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => AcceptBooking(booking.Id)">
+                            Отправить письмо
+                        </button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 }
 
-<button class="btn btn-primary" @onclick="AcceptBooking">Отправить письмо</button>
-
 <p>@Message</p>
 
 @code {
     private string Message = "";
-
     private List<Booking>? bookings;
+    private string sortOption = "dateAsc";
 
     protected override async Task OnInitializedAsync()
     {
         bookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
     }
 
-    private async Task AcceptBooking()
+    private List<Booking> sortedBookings => sortOption switch
+    {
+        "dateAsc" => bookings?.OrderBy(b => b.CreatedAt).ToList() ?? new List<Booking>(),
+        "dateDesc" => bookings?.OrderByDescending(b => b.CreatedAt).ToList() ?? new List<Booking>(),
+        "status" => bookings?.OrderBy(b => b.Status).ToList() ?? new List<Booking>(),
+        _ => bookings?.ToList() ?? new List<Booking>()
+    };
+
+    private async Task AcceptBooking(int bookingId)
     {
         var result = await EmailService.SendMessage();
 

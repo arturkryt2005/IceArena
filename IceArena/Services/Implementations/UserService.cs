@@ -32,7 +32,21 @@ namespace IceArena.Services.Implementations
 
         public async Task UpdateUserAsync(User user)
         {
-            await _userRepository.UpdateAsync(user);
+            var existingUser = await _userRepository.GetByIdAsync(user.Id);
+            if (existingUser == null)
+            {
+                throw new Exception("Пользователь не найден.");
+            }
+
+            existingUser.Username = user.Username;
+            existingUser.Email = user.Email;
+            existingUser.Role = user.Role;
+
+            if (!string.IsNullOrEmpty(user.PasswordHash))
+            {
+                existingUser.PasswordHash = user.PasswordHash;
+            }
+
             await _userRepository.SaveChangesAsync();
         }
 

@@ -5,6 +5,120 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+/* Форма добавления матча */
+.add-match-form {
+    background: #2c2c2c;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+    .add-match-form h3 {
+        color: #ffcc00;
+        margin-bottom: 15px;
+    }
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #e0e0e0;
+    }
+
+    .form-group select, .form-group input {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #444;
+        background: #333;
+        color: #e0e0e0;
+        font-size: 14px;
+    }
+
+        .form-group input[type="datetime-local"] {
+            padding: 7px;
+        }
+.validation-error {
+    color: #ff4444;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.add-match-form {
+    background: #2c2c2c;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.add-match-form h3 {
+    color: #ffcc00;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #e0e0e0;
+}
+
+.form-group select, .form-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background: #333;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+.form-group input[type="datetime-local"] {
+    padding: 7px;
+}
+
+.btn-primary {
+    background-color: #ffcc00;
+    color: #1a1a1a;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #e6b800;
+    transform: translateY(-2px);
+}
+.btn-primary {
+    background-color: #ffcc00;
+    color: #1a1a1a;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+    .btn-primary:hover {
+        background-color: #e6b800;
+        transform: translateY(-2px);
+    }
+
 .page-title {
     text-align: center;
     font-size: 2.5rem;

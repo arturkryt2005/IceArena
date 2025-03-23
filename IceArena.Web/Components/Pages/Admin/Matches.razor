@@ -7,9 +7,67 @@
 <div class="dark-theme">
     <h1 class="page-title">Управление матчами</h1>
 
+    <div class="add-match-form">
+        <h2>Добавить матч</h2>
+        <EditForm Model="@newMatch" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="team1">Команда 1:</label>
+                <InputSelect id="team1" class="form-control" @bind-Value="newMatch.Team1Id">
+                    <option value="">Выберите команду</option>
+                    @if (teams != null) 
+                    {
+                        @foreach (var team in teams)
+                        {
+                            <option value="@team.Id">@team.Name</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newMatch.Team1Id)" />
+            </div>
+
+            <div class="form-group">
+                <label for="team2">Команда 2:</label>
+                <InputSelect id="team2" class="form-control" @bind-Value="newMatch.Team2Id">
+                    <option value="">Выберите команду</option>
+                    @if (teams != null) 
+                    {
+                        @foreach (var team in teams)
+                        {
+                            <option value="@team.Id">@team.Name</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newMatch.Team2Id)" />
+            </div>
+
+            <div class="form-group">
+                <label for="matchDate">Дата и время матча:</label>
+                <input type="datetime-local" id="matchDate" class="form-control" @bind="newMatch.MatchDate" />
+                <ValidationMessage For="@(() => newMatch.MatchDate)" />
+            </div>
+
+            <div class="form-group">
+                <label for="location">Место проведения:</label>
+                <InputText id="location" class="form-control" @bind-Value="newMatch.Location" />
+                <ValidationMessage For="@(() => newMatch.Location)" />
+            </div>
+
+            <div class="form-group">
+                <label for="result">Результат:</label>
+                <InputText id="result" class="form-control" @bind-Value="newMatch.Result" />
+                <ValidationMessage For="@(() => newMatch.Result)" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Добавить матч</button>
+        </EditForm>
+    </div>
+
     @if (matches == null)
     {
-        <p class="loading-message">Загрузка...</p>
+        <p class="loading-message">Загрузка матчей...</p>
     }
     else if (matches.Count == 0)
     {
@@ -26,7 +84,6 @@
                     <th>Дата матча</th>
                     <th>Место проведения</th>
                     <th>Результат</th>
-                    <th>Создано</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -37,10 +94,9 @@
                         <td>@match.Id</td>
                         <td>@match.Team1?.Name</td>
                         <td>@match.Team2?.Name</td>
-                        <td>@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@match.MatchDate?.ToString("dd.MM.yyyy HH:mm")</td>
                         <td>@match.Location</td>
                         <td>@match.Result</td>
-                        <td>@match.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                         <td>
                             <button class="delete-button" @onclick="() => DeleteMatch(match.Id)">Удалить</button>
                         </td>
@@ -53,10 +109,84 @@
 
 @code {
     private List<Match>? matches;
+    private List<Team>? teams = new List<Team>();
+    private Match newMatch = new Match();
 
     protected override async Task OnInitializedAsync()
     {
-        matches = await Http.GetFromJsonAsync<List<Match>>("api/Match");
+        try
+        {
+            matches = await Http.GetFromJsonAsync<List<Match>>("api/Match");
+            teams = await Http.GetFromJsonAsync<List<Team>>("api/Team");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при загрузке данных: {ex.Message}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            if (newMatch.Team1Id == newMatch.Team2Id)
+            {
+                Console.WriteLine("Команда 1 и команда 2 не могут быть одинаковыми.");
+                return;
+            }
+
+            if (newMatch.MatchDate < DateTime.UtcNow)
+            {
+                Console.WriteLine("Дата матча не может быть в прошлом.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newMatch.Location))
+            {
+                Console.WriteLine("Место проведения обязательно.");
+                return;
+            }
+
+            if (newMatch.Location.Length > 100)
+            {
+                Console.WriteLine("Место проведения не может быть длиннее 100 символов.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newMatch.Result))
+            {
+                Console.WriteLine("Результат обязателен.");
+                return;
+            }
+
+            if (newMatch.Result.Length > 50)
+            {
+                Console.WriteLine("Результат не может быть длиннее 50 символов.");
+                return;
+            }
+
+            if (newMatch.MatchDate.HasValue)
+            {
+                newMatch.MatchDate = DateTime.SpecifyKind(newMatch.MatchDate.Value, DateTimeKind.Utc);
+            }
+
+            var response = await Http.PostAsJsonAsync("api/Match", newMatch);
+
+            if (response.IsSuccessStatusCode)
+            {
+                matches = await Http.GetFromJsonAsync<List<Match>>("api/Match");
+                newMatch = new Match(); 
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Ошибка при добавлении матча: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Исключение при добавлении матча: {ex.Message}");
+        }
     }
 
     private async Task DeleteMatch(int matchId)

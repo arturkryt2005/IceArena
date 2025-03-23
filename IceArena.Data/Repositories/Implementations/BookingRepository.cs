@@ -18,6 +18,24 @@ namespace IceArena.Data.Repositories.Implementations
             _dbContext = dbContext;
         }
 
+        public async Task<IEnumerable<Booking>> GetAvailableSlotsAsync(DateTime date)
+        {
+            DateTime utcDate = date.Kind == DateTimeKind.Unspecified
+                ? DateTime.SpecifyKind(date, DateTimeKind.Utc)
+                : date.ToUniversalTime();
+
+            return await _dbContext.Bookings
+                .Where(b => b.Date.Date == utcDate.Date && b.Status == "Available")
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Booking>> GetAvailablSlotsAsync()
+        {
+            return await _dbContext.Bookings
+                .Where(b => b.Status == "Available")
+                .ToListAsync();
+        }
+
         public async Task<Booking?> GetByIdAsync(int id)
         {
             return await _dbContext.Bookings.FindAsync(id); 

@@ -14,18 +14,25 @@ namespace IceArena.Data.Models
         [Column("id")]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Команда 1 обязательна.")]
         [Column("team1_id")]
         public int Team1Id { get; set; }
 
+        [Required(ErrorMessage = "Команда 2 обязательна.")]
         [Column("team2_id")]
         public int Team2Id { get; set; }
 
+        [Required(ErrorMessage = "Дата и время матча обязательны.")]
         [Column("match_date")]
-        public DateTime MatchDate { get; set; }
+        public DateTime? MatchDate { get; set; }
 
+        [Required(ErrorMessage = "Место проведения обязательно.")]
+        [StringLength(100, ErrorMessage = "Место проведения не может быть длиннее 100 символов.")]
         [Column("location")]
         public string? Location { get; set; }
 
+        [Required(ErrorMessage = "Результат обязателен.")]
+        [StringLength(50, ErrorMessage = "Результат не может быть длиннее 50 символов.")]
         [Column("result")]
         public string? Result { get; set; }
 

@@ -32,6 +32,36 @@ namespace IceArena.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMatch([FromBody] Match match)
         {
+            if (match.Team1Id == match.Team2Id)
+            {
+                return BadRequest("Команда 1 и команда 2 не могут быть одинаковыми.");
+            }
+
+            if (match.MatchDate < DateTime.UtcNow)
+            {
+                return BadRequest("Дата матча не может быть в прошлом.");
+            }
+
+            if (string.IsNullOrWhiteSpace(match.Location))
+            {
+                return BadRequest("Место проведения обязательно.");
+            }
+
+            if (match.Location.Length > 100)
+            {
+                return BadRequest("Место проведения не может быть длиннее 100 символов.");
+            }
+
+            if (string.IsNullOrWhiteSpace(match.Result))
+            {
+                return BadRequest("Результат обязателен.");
+            }
+
+            if (match.Result.Length > 50)
+            {
+                return BadRequest("Результат не может быть длиннее 50 символов.");
+            }
+
             await _matchService.CreateMatchAsync(match);
             return CreatedAtAction(nameof(GetMatch),new {id = match.Id}, match);
         }

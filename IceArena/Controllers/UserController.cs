@@ -1,5 +1,6 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Services.Interfaces;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IceArena.Controllers
@@ -39,8 +40,42 @@ namespace IceArena.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] User user)
         {
-            if (id != user.Id) return BadRequest("ID mismatch");
-            await _userService.UpdateUserAsync(user);
+            if (id != user.Id)
+            {
+                return BadRequest("Несоответствие ID.");
+            }
+
+            try
+            {
+                await _userService.UpdateUserAsync(user);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchUser(int id, [FromBody] JsonPatchDocument<User> patchDoc)
+        {
+            var userToUpdate = await _userService.GetUserByIdAsync(id);
+            if (userToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            patchDoc.ApplyTo(userToUpdate, error =>
+            {
+                ModelState.AddModelError(error.AffectedObject.ToString(), error.ErrorMessage);
+            });
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _userService.UpdateUserAsync(userToUpdate);
             return NoContent();
         }
 
