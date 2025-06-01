@@ -36,5 +36,8 @@ namespace IceArena.Data.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+
+        [Column("phone_number")]
+        public string? PhoneNumber { get; set; }
     }
 }

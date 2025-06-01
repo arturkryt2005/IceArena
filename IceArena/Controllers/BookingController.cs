@@ -43,15 +43,23 @@ namespace IceArena.Controllers
         [HttpGet("available")]
         public async Task<IActionResult> GetAvailableSlots()
         {
-            var slots = await _bookingService.GetAvailablSlotsAsync();
+            var slots = await _bookingService.GetAvailableSlotsAsync();
             return Ok(slots);
         }
+
 
         [HttpPost("confirm/{bookingId}/{userId}")]
         public async Task<IActionResult> ConfirmBooking(int bookingId, int userId)
         {
             await _bookingService.ConfirmBookingAsync(bookingId, userId);
             return NoContent();
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserBookings(int userId)
+        {
+            var bookings = await _bookingService.GetUserBookingsAsync(userId);
+            return Ok(bookings);
         }
     }
 }

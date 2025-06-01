@@ -29,7 +29,14 @@ namespace IceArena.Data.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Booking>> GetAvailablSlotsAsync()
+        public async Task<IEnumerable<Booking>> GetUserBookingsAsync(int userId)
+        {
+            return await _dbContext.Bookings
+                .Where(b => b.UserId == userId && b.Status == "Pending")
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Booking>> GetAvailableSlotsAsync()
         {
             return await _dbContext.Bookings
                 .Where(b => b.Status == "Available")

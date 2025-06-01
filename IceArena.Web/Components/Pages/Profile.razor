@@ -1,73 +1,105 @@
 ﻿@page "/profile"
 @using IceArena.Data.Models
-@using System.ComponentModel.DataAnnotations
-@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @rendermode InteractiveServer
 
-<h3 class="profileh1">Профиль</h3>
+<h2 class="profile-header">Профиль</h2>
 
 @if (!isInitialized)
 {
-    <p class="profiletext">Загрузка...</p>
+    <p class="loading-text">Загрузка данных...</p>
 }
 else if (!isAuthenticated)
 {
-    <p class="profiletext2">Вы не авторизованы.</p>
-    <a href="/" class="profilea">Вернуться на главную</a>
+    <div class="unauthorized-card">
+        <h4>Вы не авторизованы</h4>
+        <a href="/" class="btn btn-primary">Войти</a>
+    </div>
 }
 else
 {
-    <div class="profile-container">
-        <div class="avatar-container">
-            <img src="../images/profile.png" alt="Аватар" class="avatar" />
+    <div class="profile-card">
+        <div class="avatar-section">
+            <img src="../images/profile.png" alt="Аватар" class="avatar-img" />
+            <h3>@username</h3>
         </div>
-        <div class="info-container">
-            <p class="profiletext2"><strong>Имя:</strong> @username</p>
-            <p class="profiletext2"><strong>Email:</strong> @userEmail</p>
-            <p class="profiletext2"><strong>Роль:</strong> @role</p>
-            <button class="btn btn-primary" @onclick="OpenEditModal">Редактировать</button>
+
+        <div class="user-info">
+            <div class="info-row">
+                <strong>Email:</strong> @userEmail
+            </div>
+            <div class="info-row">
+                <strong>Телефон:</strong> @phone
+            </div>
+            <button class="btn btn-outline-primary edit-button" @onclick="OpenEditModal">Редактировать</button>
         </div>
+    </div>
+
+    <div class="booking-history">
+        <h4>История бронирований</h4>
+
+        @if (bookings == null)
+        {
+            <p>Загрузка истории...</p>
+        }
+        else if (bookings.Count == 0)
+        {
+            <p class="no-bookings">У вас пока нет бронирований.</p>
+        }
+        else
+        {
+            <div class="history-list">
+                @foreach (var booking in bookings.OrderByDescending(b => b.Date).ThenBy(b => b.StartTime))
+                {
+                    <div class="booking-item">
+                        <span class="booking-date">📅 @booking.Date.ToShortDateString()</span>
+                        <span class="booking-time">⏰ @booking.StartTime.ToString("hh\\:mm") - @booking.EndTime.ToString("hh\\:mm")</span>
+                        <span class="booking-status @(GetStatusClass(booking.Status))">
+                            🟢 @booking.Status
+                        </span>
+                    </div>
+                }
+            </div>
+        }
     </div>
 }
 
-@if (showModal)
+<!-- Модалка редактирования -->
+@if (showEditModal)
 {
-    <div class="modal-overlay">
-        <div class="modal-content">
+    <div class="modal-overlay" @onclick="CloseEditModal">
+        <div class="modal-content" @onclick:stopPropagation>
             <div class="modal-header">
-                <h5 class="modal-title">Редактирование профиля</h5>
-                <button type="button" class="modal-close-button" @onclick="CloseEditModal">&times;</button>
+                <h5>Редактирование профиля</h5>
+                <button class="close-btn" @onclick="CloseEditModal">&times;</button>
             </div>
-            <div class="modal-body">
-                <EditForm EditContext="@editContext" OnValidSubmit="@SaveUserChanges">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
+            <EditForm Model="@editedUser" OnValidSubmit="SaveUserChanges">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-                    <div class="form-group">
-                        <label for="username">Имя</label>
-                        <InputText id="username" @bind-Value="editedUser.Username" class="form-control" />
-                        <ValidationMessage For="@(() => editedUser.Username)" />
-                    </div>
+                <div class="form-group">
+                    <label>Имя пользователя</label>
+                    <InputText @bind-Value="editedUser.Username" class="form-control" />
+                    <ValidationMessage For="@(() => editedUser.Username)" />
+                </div>
 
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <InputText id="email" @bind-Value="editedUser.Email" class="form-control" />
-                        <ValidationMessage For="@(() => editedUser.Email)" />
-                    </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <InputText @bind-Value="editedUser.Email" class="form-control" />
+                    <ValidationMessage For="@(() => editedUser.Email)" />
+                </div>
 
-                    <div class="form-group">
-                        <label for="role">Роль</label>
-                        <InputText id="role" @bind-Value="editedUser.Role" class="form-control" />
-                        <ValidationMessage For="@(() => editedUser.Role)" />
-                    </div>
+                <div class="form-group">
+                    <label>Телефон</label>
+                    <InputText @bind-Value="editedUser.PhoneNumber" class="form-control" />
+                </div>
 
-                    <div class="form-actions">
-                        <button type="button" class="cancel-button" @onclick="CloseEditModal">Закрыть</button>
-                        <button type="submit" class="save-button">Сохранить изменения</button>
-                    </div>
-                </EditForm>
-            </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseEditModal">Отменить</button>
+                </div>
+            </EditForm>
         </div>
     </div>
 }
@@ -75,89 +107,114 @@ else
 @code {
     private bool isAuthenticated = false;
     private bool isInitialized = false;
-    private string userEmail = "Неизвестно";
-    private string role = "Пользователь";
-    private string username = "Пользователь";
-    private bool showModal = false;
-    private User editedUser = new User();
-    private string passwordHash = "";
+    private string username = "";
+    private string userEmail = "";
+    private string role = "";
+    private string phone = "";
+    private int userId = 0;
+    private List<IceArena.Data.Models.Booking> bookings = new();
+    private bool showEditModal = false;
+    private User editedUser = new();
 
-    private EditContext editContext;
-    private ValidationMessageStore validationMessageStore;
+    protected override async Task OnInitializedAsync()
+    {
+        isInitialized = false;
+        await base.OnInitializedAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await LoadUserData();
+        }
+    }
+
+    private async Task LoadUserData()
+    {
+        try
+        {
+            // Загружаем данные из LocalStorage
             var token = await LocalStorage.GetItemAsStringAsync("authToken");
             username = await LocalStorage.GetItemAsStringAsync("username") ?? "Неизвестно";
+            phone = await LocalStorage.GetItemAsStringAsync("phone") ?? "Неизвестно";
             userEmail = await LocalStorage.GetItemAsStringAsync("email") ?? "Неизвестно";
             role = await LocalStorage.GetItemAsStringAsync("role") ?? "Пользователь";
-            passwordHash = await LocalStorage.GetItemAsStringAsync("passwordHash") ?? "";
 
-            var userId = await LocalStorage.GetItemAsync<int>("userId");
+            var userIdString = await LocalStorage.GetItemAsStringAsync("userId");
+            if (int.TryParse(userIdString, out var id))
+            {
+                userId = id;
+                isAuthenticated = !string.IsNullOrEmpty(token);
 
-            editedUser = new User
-                {
-                    Id = userId,
-                    Username = username,
-                    Email = userEmail,
-                    Role = role,
-                    PasswordHash = passwordHash
-                };
+                // Загружаем бронирования
+                bookings = await Http.GetFromJsonAsync<List<IceArena.Data.Models.Booking>>($"api/Booking/user/{userId}") ?? new();
+            }
 
-            editContext = new EditContext(editedUser);
-            validationMessageStore = new ValidationMessageStore(editContext);
-
-            isAuthenticated = !string.IsNullOrEmpty(token);
             isInitialized = true;
-
             StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка загрузки данных: {ex.Message}");
+            isInitialized = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveUserChanges()
+    {
+        var response = await Http.PutAsJsonAsync($"api/User/{editedUser.Id}", editedUser);
+
+        if (response.IsSuccessStatusCode)
+        {
+            username = editedUser.Username;
+            userEmail = editedUser.Email;
+            role = editedUser.Role; 
+            phone = editedUser.PhoneNumber;
+
+            await LocalStorage.SetItemAsStringAsync("username", username);
+            await LocalStorage.SetItemAsStringAsync("email", userEmail);
+            await LocalStorage.SetItemAsStringAsync("role", role); 
+            await LocalStorage.SetItemAsStringAsync("phone", phone);
+
+            showEditModal = false;
+            StateHasChanged();
+        }
+        else
+        {
+            Console.WriteLine("Ошибка при сохранении изменений.");
         }
     }
 
     private void OpenEditModal()
     {
-        showModal = true;
+        editedUser = new User
+            {
+                Id = userId,
+                Username = username,
+                Email = userEmail,
+                Role = role,
+                PhoneNumber = phone
+            };
+        showEditModal = true;
         StateHasChanged();
     }
 
     private void CloseEditModal()
     {
-        showModal = false;
+        showEditModal = false;
         StateHasChanged();
     }
 
-    private async Task SaveUserChanges()
+    private string GetStatusClass(string status)
     {
-        Console.WriteLine("SaveUserChanges вызван");
-
-        if (!editContext.Validate())
+        return status switch
         {
-            Console.WriteLine("Ошибки валидации");
-            return;
-        }
-
-        editedUser.PasswordHash = passwordHash;
-
-        var response = await Http.PutAsJsonAsync($"api/User/{editedUser.Id}", editedUser);
-        if (response.IsSuccessStatusCode)
-        {
-            Console.WriteLine("Данные успешно обновлены");
-            username = editedUser.Username;
-            userEmail = editedUser.Email;
-            role = editedUser.Role;
-            await LocalStorage.SetItemAsStringAsync("username", username);
-            await LocalStorage.SetItemAsStringAsync("email", userEmail);
-            await LocalStorage.SetItemAsStringAsync("role", role);
-            showModal = false;
-            StateHasChanged();
-        }
-        else
-        {
-            Console.WriteLine("Ошибка при обновлении данных");
-            var errorMessage = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(errorMessage);
-        }
+            "Pending" => "status-pending",
+            "Booked" => "status-booked",
+            "Cancelled" => "status-cancelled",
+            _ => ""
+        };
     }
 }

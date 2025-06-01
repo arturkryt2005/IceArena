@@ -2,7 +2,7 @@
     background-color: #121212; 
     color: #ffffff; 
     padding: 2rem;
-    font-family: 'Montserrat', sans-serif;
+    font-family: Montserrat;
 }
 
 .page-title {
@@ -113,30 +113,34 @@
     width: 250px;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden; 
+    word-wrap: break-word; 
+    min-height: 200px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
     .user-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
     }
-
-.user-email {
-    font-size: 0.9rem;
-    color: #ccc;
-    margin-bottom: 8px;
+.user-email, .user-role, .user-created {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 5px;
+    margin: 5px 0;
 }
 
-.user-role span {
-    color: #ffc107;
-    font-weight: bold;
-}
-
-.user-created {
-    font-size: 0.8rem;
-    color: #bbb;
-    margin-bottom: 12px;
-}
-
+    .user-role span {
+        color: #ffc107;
+        font-weight: bold;
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 .delete-button {
     padding: 8px 15px;
     background-color: #ff4444;
@@ -145,6 +149,8 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
+    width: calc(100% - 10px); /* Добавлено */
+    margin: 5px; /* Добавлено */
 }
 
     .delete-button:hover {
@@ -155,7 +161,13 @@
     .delete-button:active {
         transform: translateY(0);
     }
-
+.user-card h4 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 0 10px 0;
+    padding: 0 5px;
+}
 
 @keyframes fadeInUp {
     from {

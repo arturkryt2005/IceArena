@@ -1,13 +1,8 @@
 ﻿using Blazored.LocalStorage;
 using IceArena.Data.Models;
 using IceArena.Data.Requests;
-using Microsoft.AspNetCore.Components.Authorization;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Security.Claims;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 public class AuthService
 {
@@ -42,6 +37,8 @@ public class AuthService
         await _localStorage.SetItemAsStringAsync("username", result.Username);
         await _localStorage.SetItemAsStringAsync("email", result.Email);
         await _localStorage.SetItemAsStringAsync("role", result.Role);
+        await _localStorage.SetItemAsStringAsync("phone_number", result.PhoneNumber);
+
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
         return result;

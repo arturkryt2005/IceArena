@@ -1,7 +1,6 @@
 ﻿@page "/matches"
-@using IceArena.Web.Interfaces
 @using IceArena.Web.Models
-@using IceArena.Web.Services
+@using IceArena.Web.Interfaces
 @inject IMatchService MatchService
 
 <h3 class="basezagolovok">Список матчей</h3>
@@ -19,14 +18,14 @@ else
             @foreach (var match in pastMatches)
             {
                 <div class="match-card past">
-                    <div class="match-date">@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</div>
+                    <div class="match-date">@match.MatchDate?.ToString("dd.MM.yyyy HH:mm")</div>
                     <div class="match-teams">
-                        <span class="team">@(match.Team1Id == default ? "Неизвестно" : match.Team1Id)</span>
+                        <span class="team">@match.Team1Name</span>
                         <span class="vs">vs</span>
-                        <span class="team">@(match.Team2Id == default ? "Неизвестно" : match.Team2Id)</span>
+                        <span class="team">@match.Team2Name</span>
                     </div>
-                    <div class="match-location">@(match.Location ?? "Место проведения не указано")</div>
-                    <div class="match-status">@(match.Result ?? "Планируется")</div>
+                    <div class="match-location">@match.Location</div>
+                    <div class="match-status">@match.Result</div>
                 </div>
             }
         </div>
@@ -39,14 +38,14 @@ else
             @foreach (var match in futureMatches)
             {
                 <div class="match-card future">
-                    <div class="match-date">@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</div>
+                    <div class="match-date">@match.MatchDate?.ToString("dd.MM.yyyy HH:mm")</div>
                     <div class="match-teams">
-                        <span class="team">@(match.Team1Id == default ? "Неизвестно" : match.Team1Id)</span>
+                        <span class="team">@match.Team1Name</span>
                         <span class="vs">vs</span>
-                        <span class="team">@(match.Team2Id == default ? "Неизвестно" : match.Team2Id)</span>
+                        <span class="team">@match.Team2Name</span>
                     </div>
-                    <div class="match-location">@(match.Location ?? "Место проведения не указано")</div>
-                    <div class="match-status">@(match.Result ?? "Планируется")</div>
+                    <div class="match-location">@match.Location</div>
+                    <div class="match-status">@match.Result</div>
                 </div>
             }
         </div>
@@ -67,10 +66,10 @@ else
     {
         matches = await MatchService.GetMatchesAsync();
 
+        var now = DateTime.Now;
+
         if (matches != null)
         {
-            var now = DateTime.Now;
-
             pastMatches = matches.Where(m => m.MatchDate < now).ToList();
             futureMatches = matches.Where(m => m.MatchDate >= now).ToList();
         }

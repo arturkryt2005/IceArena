@@ -1,103 +1,150 @@
 ﻿body {
-    background-color: #1a1a1a;
-    color: #fff;
-    font-family: 'Montserrat', sans-serif;
+    background-color: #121212;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
 }
 
 .basezagolovok {
-    color: #ffd700;
     text-align: center;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2.5rem;
+    color: #FFD700;
+    font-size: 2.8rem;
+    margin-top: 50px;
     margin-bottom: 20px;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    font-weight: 600;
 }
 
 .basezag {
-    color: #ffd700;
-    text-align: center;
+    color: #FFD700;
     font-size: 2rem;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    font-family: 'Montserrat', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    margin: 40px 20px 20px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid #FFD700;
+    padding-left: 12px;
+    font-weight: 500;
 }
 
 .matches-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    padding: 20px 40px;
 }
 
 .match-card {
-    background-color: #2a2a2a;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    padding: 20px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #444;
+    background-color: #1e1e1e;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    padding: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border-left: 6px solid transparent;
+    position: relative;
+    overflow: hidden;
 }
 
+    .match-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -50%;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(120deg, rgba(255,215,0,0.05), rgba(255,215,0,0.02));
+        transition: transform 0.5s ease;
+    }
+
+    .match-card:hover::before {
+        transform: translateX(50%);
+    }
+
     .match-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7);
     }
 
     .match-card.past {
-        border-left: 5px solid #ff6347;
+        border-left-color: #ff4d4d;
     }
 
     .match-card.future {
-        border-left: 5px solid #ffd700;
+        border-left-color: #FFD700;
     }
 
 .match-date {
     font-size: 1.1rem;
-    color: #ffd700;
-    margin-bottom: 10px;
-    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .match-teams {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
 }
 
 .team {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: bold;
-    color: #fff;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .vs {
-    font-size: 1rem;
-    color: #ffd700;
+    font-size: 1.1rem;
+    color: #FFD700;
     font-weight: bold;
+    margin: 0 8px;
 }
 
 .match-location {
     font-size: 1rem;
-    color: #aaa;
-    margin-bottom: 10px;
+    color: #cccccc;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .match-status {
     font-size: 1rem;
-    color: #ff6347;
     font-weight: bold;
     text-align: center;
+    color: #ff6347;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+    .match-status.planned {
+        color: #FFD700;
+    }
 
 .no-matches {
     text-align: center;
-    color: #ffd700;
-    font-size: 1.2rem;
-    margin-top: 20px;
+    font-size: 1.4rem;
+    color: #FFD700;
+    margin: 60px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-style: italic;
+}
+
+.loading {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #aaa;
+    margin: 60px 0;
 }

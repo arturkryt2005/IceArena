@@ -6,6 +6,7 @@ namespace IceArena.Data.Repositories.Interfaces
     {
         Task<User?> GetByIdAsync(int id);
         Task<User?> GetUserByEmailAsync(string email);
+        Task<User> GetUserByPhoneAsync(string phone);
         Task<IEnumerable<User>> GetAllAsync();
         Task AddAsync(User user);
         Task UpdateAsync(User user);

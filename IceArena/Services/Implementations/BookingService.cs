@@ -4,11 +4,11 @@ using IceArena.Services.Interfaces;
 
 namespace IceArena.Services.Implementations
 {
-    public class BookingServicecs: IBookingService
+    public class BookingService: IBookingService
     {
         private readonly IBookingRepository _bookingRepository;
 
-        public BookingServicecs(IBookingRepository bookingRepository)
+        public BookingService(IBookingRepository bookingRepository)
         {
             _bookingRepository = bookingRepository;
         }
@@ -28,11 +28,15 @@ namespace IceArena.Services.Implementations
             return await _bookingRepository.GetAvailableSlotsAsync(date);
         }
 
-        public async Task<IEnumerable<Booking>> GetAvailablSlotsAsync()
+        public async Task<IEnumerable<Booking>> GetUserBookingsAsync(int userId)
         {
-            return await _bookingRepository.GetAvailablSlotsAsync();
+            return await _bookingRepository.GetUserBookingsAsync(userId);
         }
 
+        public async Task<IEnumerable<Booking>> GetAvailableSlotsAsync()
+        {
+            return await _bookingRepository.GetAvailableSlotsAsync();
+        }
 
         public async Task CreateBooking(Booking booking)
         {
@@ -55,10 +59,15 @@ namespace IceArena.Services.Implementations
         public async Task ConfirmBookingAsync(int bookingId, int userId)
         {
             var booking = await _bookingRepository.GetByIdAsync(bookingId);
+
             if (booking != null && booking.Status == "Available")
             {
                 booking.UserId = userId;
-                booking.Status = "Pending Approval"; 
+                booking.Status = "Pending";
+
+                booking.CreatedAt = DateTime.SpecifyKind(booking.CreatedAt, DateTimeKind.Utc);
+                booking.Date = DateTime.SpecifyKind(booking.Date, DateTimeKind.Utc);
+
                 await _bookingRepository.UpdateAsync(booking);
                 await _bookingRepository.SaveChangesAsync();
             }

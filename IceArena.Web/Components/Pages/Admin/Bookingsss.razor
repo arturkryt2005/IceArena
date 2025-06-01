@@ -8,7 +8,7 @@
 
 <h3>Бронирования</h3>
 
-@if (bookings == null)
+@if (bookings == null || users == null)
 {
     <p>Загрузка...</p>
 }
@@ -31,28 +31,49 @@ else
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Пользователь ID</th>
+                <th>Пользователь</th>
                 <th>Дата</th>
                 <th>Длительность</th>
                 <th>Статус</th>
                 <th>Создано</th>
-                <th>Подтвердить</th>
+                <th>Действия</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var booking in sortedBookings)
             {
+                var user = users.FirstOrDefault(u => u.Id == booking.UserId);
                 <tr class="booking-row @booking.Status.ToLower()">
                     <td>@booking.Id</td>
-                    <td>@booking.UserId</td>
+                    <td>
+                        @if (user != null)
+                        {
+                            <div>
+                                <strong>@user.Username</strong><br />
+                                Email: @user.Email<br />
+                                Телефон: @user.PhoneNumber
+                            </div>
+                        }
+                        else
+                        {
+                            <span>Пользователь не найден</span>
+                        }
+                    </td>
                     <td>@booking.Date.ToString("dd.MM.yyyy HH:mm")</td>
                     <td>@booking.Duration минут</td>
                     <td>@booking.Status</td>
                     <td>@booking.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => AcceptBooking(booking.Id)">
-                            Отправить письмо
-                        </button>
+                        @if (booking.Status == "Pending")
+                        {
+                            <button class="btn btn-primary" @onclick="() => AcceptBooking(booking.Id, user?.Email)">
+                                Отправить письмо
+                            </button>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
                     </td>
                 </tr>
             }
@@ -65,11 +86,13 @@ else
 @code {
     private string Message = "";
     private List<Booking>? bookings;
+    private List<User>? users;
     private string sortOption = "dateAsc";
 
     protected override async Task OnInitializedAsync()
     {
         bookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
+        users = await Http.GetFromJsonAsync<List<User>>("api/User");
     }
 
     private List<Booking> sortedBookings => sortOption switch
@@ -80,13 +103,31 @@ else
         _ => bookings?.ToList() ?? new List<Booking>()
     };
 
-    private async Task AcceptBooking(int bookingId)
+    private async Task AcceptBooking(int bookingId, string? userEmail)
     {
-        var result = await EmailService.SendMessage();
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            Message = "Ошибка: Email пользователя не указан";
+            return;
+        }
+
+        var result = await EmailService.SendMessage(userEmail);
 
         if (result.Success)
-            NavigationManager.NavigateTo("/dashboard");
+        {
+            Message = $"Письмо успешно отправлено на {userEmail}";
+
+            var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
+            if (booking != null)
+            {
+                booking.Status = "Booked";
+            }
+
+            StateHasChanged();
+        }
         else
+        {
             Message = $"Ошибка при отправке письма: {result.ErrorMessage}";
+        }
     }
 }

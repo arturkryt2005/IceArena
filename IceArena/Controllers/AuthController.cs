@@ -39,6 +39,11 @@ namespace IceArena.Controllers
                 return BadRequest("Email уже используется");
             }
 
+            if (await _userRepository.GetUserByPhoneAsync(request.PhoneNumber) != null) 
+            {
+                return BadRequest("Телефон уже используется");
+            }
+
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
             _logger.LogInformation("Хеш пароля при регистрации: {PasswordHash}", passwordHash);
 
@@ -46,6 +51,7 @@ namespace IceArena.Controllers
             {
                 Username = request.Username,
                 Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
                 PasswordHash = passwordHash,
                 Role = "user",
                 CreatedAt = DateTime.UtcNow
@@ -65,7 +71,8 @@ namespace IceArena.Controllers
                 UserId = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                PhoneNumber = user.PhoneNumber,
             });
         }
 
@@ -103,7 +110,8 @@ namespace IceArena.Controllers
                 UserId = user.Id,
                 Username = user.Username,
                 Role = user.Role ?? "user",
-                Email = user.Email
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
             };
 
             _logger.LogInformation("Успешный вход: {Username}, Token = {Token}", user.Username, token);
@@ -119,6 +127,11 @@ namespace IceArena.Controllers
                 return BadRequest("Email уже используется");
             }
 
+            if (await _userRepository.GetUserByPhoneAsync(request.PhoneNumber) != null)
+            {
+                return BadRequest("Телефон уже используется");
+            }
+
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
             _logger.LogInformation("Хеш пароля при регистрации админа: {PasswordHash}", passwordHash);
 
@@ -127,6 +140,7 @@ namespace IceArena.Controllers
                 Username = request.Username,
                 Email = request.Email,
                 PasswordHash = passwordHash,
+                PhoneNumber = request.PhoneNumber,
                 Role = "admin", 
                 CreatedAt = DateTime.UtcNow
             };
@@ -142,6 +156,7 @@ namespace IceArena.Controllers
                 UserId = user.Id,
                 Username = user.Username,
                 Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
                 Role = user.Role
             });
         }
@@ -153,7 +168,8 @@ namespace IceArena.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role ?? "user")
+                new Claim(ClaimTypes.Role, user.Role ?? "user"),
+                new Claim("Phone", user.PhoneNumber)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

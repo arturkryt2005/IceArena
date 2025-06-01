@@ -1,122 +1,44 @@
-﻿body {
-    background-color: #121212; /* Черный фон */
-    color: white; /* Белый текст */
-    font-family: 'Montserrat', sans-serif;
+﻿/* === Базовые стили === */
+:root {
+    --primary: #1E90FF;
+    --primary-dark: #0066CC;
+    --gold: #FFD700;
+    --gold-dark: #FFA500;
+    --danger: #FF4C4C;
+    --danger-dark: #CC0000;
+    --success: #00CC66;
+    --success-dark: #00994C;
+    --dark-bg: #121212;
+    --dark-card: #1E1E1E;
+    --dark-card-hover: #252525;
+    --text-main: #F0F0F0;
+    --text-secondary: #B0B0B0;
+    --border-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-main);
+    font-family: Montserrat;
     margin: 0;
     padding: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    line-height: 1.6;
+    min-height: 100vh;
 }
 
-.profile-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 30px;
-    background-color: #1e1e1e; /* Темно-серый фон */
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    max-width: 400px;
-    width: 100%;
-    margin: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-    .profile-container:hover {
-        transform: scale(1.02);
-        box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6); /* Желтая тень при наведении */
-    }
-
-.avatar-container {
-    margin-bottom: 20px;
-}
-
-.avatar {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 3px solid #ffd700; /* Желтая граница */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-    .avatar:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); /* Желтая тень */
-    }
-
-.info-container {
-    text-align: center;
-}
-
-.profiletext {
-    color: white; /* Белый текст */
-    font-size: 20px;
-    font-family: Montserrat;
-}
-
-.profilea {
-    color: white; /* Белый текст */
-    font-family: Montserrat;
+a {
+    color: var(--primary);
     text-decoration: none;
-    font-size: 18px;
-    transition: color 0.3s ease;
+    transition: var(--transition);
 }
 
-    .profilea:hover {
-        color: #ffd700; /* Желтый при наведении */
+    a:hover {
+        color: var(--gold);
+        text-decoration: none;
     }
 
-.profiletext2 {
-    color: white; /* Белый текст */
-    font-size: 20px;
-    font-family: Montserrat;
-    margin: 10px 0;
-}
-
-.profileh1 {
-    color: white; /* Белый текст */
-    font-size: 30px;
-    font-family: Montserrat;
-    text-align: center;
-    margin-bottom: 20px;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Желтая тень */
-}
-
-.edit-button {
-    background-color: #ffd700; /* Желтый фон */
-    color: #121212; /* Черный текст */
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 20px;
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-    .edit-button:hover {
-        background-color: #ccac00; /* Темно-желтый при наведении */
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4); /* Желтая тень */
-    }
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* Черный с прозрачностью */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 0.3s ease;
-    z-index: 1000;
-}
-
+/* === Анимации === */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -127,131 +49,659 @@
     }
 }
 
-.modal-content {
-    background-color: #1e1e1e; /* Темно-серый фон */
-    padding: 25px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    border: 1px solid #ffd700; /* Желтая граница */
-    animation: slideIn 0.3s ease;
-    position: relative;
-    transform: scale(0.9);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-@keyframes slideIn {
+@keyframes slideUp {
     from {
-        transform: translateY(-20px) scale(0.9);
         opacity: 0;
+        transform: translateY(20px);
     }
 
     to {
-        transform: translateY(0) scale(1);
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.modal-content:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6); /* Желтая тень при наведении */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+    }
+}
+
+/* === Заголовок профиля === */
+.profile-header {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 2rem 0;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+    .profile-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        border-radius: 3px;
+    }
+
+/* === Неавторизованный доступ === */
+.unauthorized-card {
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 76, 76, 0.3);
+    padding: 3rem;
+    border-radius: var(--border-radius);
+    max-width: 450px;
+    margin: 3rem auto;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.6s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+    .unauthorized-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at center, rgba(255, 76, 76, 0.1), transparent 70%);
+        z-index: -1;
+    }
+
+    .unauthorized-card h4 {
+        color: white;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+/* === Кнопки === */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.8rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+        z-index: -1;
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .btn:hover::before {
+        opacity: 1;
+    }
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+}
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+    }
+
+.btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #121212;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+    .btn-gold:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+    }
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 76, 76, 0.3);
+}
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 76, 76, 0.4);
+    }
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success), var(--success-dark));
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 204, 102, 0.3);
+}
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 204, 102, 0.4);
+    }
+
+/* === Карточка профиля === */
+.profile-card {
+    background: var(--dark-card);
+    border-radius: var(--border-radius);
+    padding: 3rem;
+    max-width: 600px;
+    margin: 3rem auto;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.5s ease-out;
+    transition: var(--transition);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at center, rgba(30, 144, 255, 0.08), transparent 70%);
+        z-index: 0;
+        animation: rotate 20s linear infinite;
+    }
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.avatar-section {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1.5rem;
+}
+
+.avatar-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--gold);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+    transition: var(--transition);
+    filter: grayscale(20%);
+}
+
+    .avatar-img:hover {
+        transform: scale(1.05);
+        filter: grayscale(0%);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+
+.profile-card h3 {
+    font-size: 1.8rem;
+    margin: 1rem 0 0.5rem;
+    color: white;
+    font-weight: 700;
+}
+
+.role-badge {
+    display: inline-block;
+    margin: 0.5rem auto;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(30, 144, 255, 0.2);
+}
+
+.user-info {
+    margin-top: 2rem;
+    text-align: left;
+    z-index: 1;
+    position: relative;
+    background: rgba(30, 30, 30, 0.6);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-row {
+    margin: 1.2rem 0;
+    font-size: 1.1rem;
+    color: white;
+    font-family: Montserrat;
+    display: flex;
+    align-items: center;
+}
+
+    .info-row strong {
+        color: var(--text-main);
+        font-weight: 600;
+        min-width: 100px;
+        margin-right: 1rem;
+    }
+
+.edit-button {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    animation: pulse 2s infinite;
+    transition: background-color 0.5s;
+}
+
+    .edit-button:hover {
+        animation: none;
+        background-color: gray;
+        transform: translateY(-3px) scale(1.02);
+    }
+
+/* === История бронирований === */
+.booking-history {
+    background: var(--dark-card);
+    border-radius: var(--border-radius);
+    padding: 2.5rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    max-width: 700px;
+    margin: 3rem auto;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: slideUp 0.6s ease-out;
+}
+
+    .booking-history h4 {
+        color: white;
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-family: Montserrat;
+        font-weight: 700;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+        .booking-history h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+            border-radius: 2px;
+        }
+
+.no-bookings {
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+h4{
+    color:white;
+}
+
+.booking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(40, 40, 40, 0.7);
+    font-family: Montserrat;
+    border-left: 4px solid var(--primary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    color:white;
+}
+
+    .booking-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(30, 144, 255, 0.1), transparent);
+        z-index: 0;
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .booking-item:hover {
+        transform: translateY(-3px);
+        background: rgba(45, 45, 45, 0.8);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+        .booking-item:hover::before {
+            opacity: 1;
+        }
+
+.booking-details {
+    flex: 1;
+    z-index: 1;
+}
+
+.booking-date,
+.booking-time,
+.booking-status {
+    margin: 0.3rem 0;
+    display: block;
+    position: relative;
+}
+
+.booking-date {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+    .booking-date::before {
+        content: '📅';
+        margin-right: 0.5rem;
+        filter: grayscale(50%);
+    }
+
+.booking-time {
+    color: var(--text-main);
+    font-weight: 500;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+    .booking-time::before {
+        content: '⏱️';
+        margin-right: 0.5rem;
+        filter: grayscale(50%);
+    }
+
+.booking-status {
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+    .booking-status::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+
+    /* Стили для статусов */
+    .booking-status.confirmed {
+        background-color: rgba(0, 204, 102, 0.15);
+        color: #00CC66;
+        border: 1px solid rgba(0, 204, 102, 0.3);
+    }
+
+        .booking-status.confirmed::before {
+            background-color: #00CC66;
+        }
+
+    .booking-status.cancelled {
+        background-color: rgba(255, 76, 76, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(255, 76, 76, 0.3);
+    }
+
+        .booking-status.cancelled::before {
+            background-color: var(--danger);
+        }
+
+    .booking-status.pending {
+        background-color: rgba(255, 215, 0, 0.15);
+        color: var(--gold);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+        .booking-status.pending::before {
+            background-color: var(--gold);
+        }
+
+/* === Модальное окно === */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background: var(--dark-card);
+    padding: 3rem;
+    border-radius: var(--border-radius);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.modal-title {
-    color: #ffd700; /* Желтый текст */
-    font-size: 24px;
-    font-weight: bold;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Желтая тень */
-}
+    .modal-header h5 {
+        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.6rem;
+        margin: 0;
+        font-weight: 700;
+    }
 
-.modal-close-button {
+.close-btn {
+    font-size: 2rem;
     background: none;
     border: none;
-    color: #ffd700; /* Желтый текст */
-    font-size: 24px;
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: color 0.3s ease, transform 0.3s ease;
+    transition: var(--transition);
+    line-height: 1;
+    padding: 0 0.5rem;
 }
 
-    .modal-close-button:hover {
-        color: #ccac00; /* Темно-желтый при наведении */
+    .close-btn:hover {
+        color: var(--danger);
         transform: rotate(90deg);
     }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
 }
 
     .form-group label {
         display: block;
-        margin-bottom: 8px;
-        color: #ffd700; /* Желтый текст */
-        font-size: 16px;
-        text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); /* Легкая желтая тень */
+        margin-bottom: 0.8rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.95rem;
     }
 
-    .form-group input {
-        width: 100%;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #ffd700; /* Желтая граница */
-        background-color: #333; /* Темный фон */
-        color: white; /* Белый текст */
-        font-size: 16px;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+.form-control {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(30, 30, 30, 0.8);
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.2);
+        outline: none;
     }
 
-        .form-group input:focus {
-            border-color: #ccac00; /* Темно-желтый при фокусе */
-            outline: none;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Желтая тень */
-        }
+.validation-message {
+    color: var(--danger);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: block;
+}
 
-.form-actions {
+.modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.save-button {
-    background-color: #ffd700; /* Желтый фон */
-    color: #121212; /* Черный текст */
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-    .save-button:hover {
-        background-color: #ccac00; /* Темно-желтый при наведении */
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4); /* Желтая тень */
+/* === Адаптивность === */
+@media (max-width: 768px) {
+    .profile-header {
+        font-size: 2.2rem;
     }
 
-.cancel-button {
-    background-color: #ff4444; /* Красный фон */
-    color: white; /* Белый текст */
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    .profile-card,
+    .booking-history,
+    .unauthorized-card {
+        padding: 2rem;
+        margin: 2rem auto;
+    }
+
+    .modal-content {
+        padding: 2rem;
+    }
+
+    .avatar-img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .booking-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 }
 
-    .cancel-button:hover {
-        background-color: #cc0000; /* Темно-красный при наведении */
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(255, 0, 0, 0.4); /* Красная тень */
+@media (max-width: 480px) {
+    .profile-header {
+        font-size: 1.8rem;
     }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+/* === Состояние загрузки === */
+.loading-text {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    margin: 3rem 0;
+    position: relative;
+}
+
+    .loading-text::after {
+        content: '...';
+        position: absolute;
+        animation: dots 1.5s infinite steps(3);
+    }
+
+@keyframes dots {
+    0%, 20% {
+        content: '.';
+    }
+
+    40% {
+        content: '..';
+    }
+
+    60%, 100% {
+        content: '...';
+    }
+}

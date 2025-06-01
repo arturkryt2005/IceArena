@@ -7,25 +7,22 @@ using Microsoft.Extensions.Logging;
 
 public class EmailService : IEmailService
 {
-    private readonly ILocalStorageService _localStorage;
     private readonly ILogger<EmailService> _logger;
 
-    public EmailService(ILocalStorageService localStorage, ILogger<EmailService> logger)
+    public EmailService(ILogger<EmailService> logger)
     {
-        _localStorage = localStorage;
         _logger = logger;
     }
 
-    public async Task<CustomErrorMessage> SendMessage()
+    public async Task<CustomErrorMessage> SendMessage(string recipientEmail)
     {
-        _logger.LogInformation("Начало отправки сообщения.");
-        string recipientEmail = await _localStorage.GetItemAsync<string>("email");
+        _logger.LogInformation("Начало отправки сообщения на {RecipientEmail}", recipientEmail);
 
         if (string.IsNullOrWhiteSpace(recipientEmail))
         {
             return new CustomErrorMessage
             {
-                ErrorMessage = "Email пользователя не найден в локальном хранилище.",
+                ErrorMessage = "Email получателя не указан.",
                 Success = false
             };
         }
@@ -47,14 +44,18 @@ public class EmailService : IEmailService
 
             mail.To.Add(recipientEmail);
             mail.Subject = "Подтверждение бронирования";
-            mail.Body = "Ваше бронирование подтверждено!";
+            mail.Body = @"
+                <h1>Ваше бронирование подтверждено!</h1>
+                <p>Спасибо за использование нашего сервиса.</p>
+                <p>Вы можете просмотреть детали вашего бронирования в личном кабинете.</p>
+                <p>С уважением,<br>Команда IceArena</p>";
             mail.IsBodyHtml = true;
 
             await smtp.SendMailAsync(mail);
             _logger.LogInformation("Письмо успешно отправлено на {RecipientEmail}", recipientEmail);
             return new CustomErrorMessage
             {
-                ErrorMessage = $"Письмо успешно отправлено на {recipientEmail}.",
+                ErrorMessage = string.Empty,
                 Success = true
             };
         }

@@ -8,7 +8,9 @@ namespace IceArena.Web.Mapping
     {
         public MatchProfile()
         {
-            CreateMap<Match, MatchDto>();  
+            CreateMap<Match, MatchDto>()
+                           .ForMember(dest => dest.Team1Name, opt => opt.MapFrom(src => src.Team1!.Name))
+                           .ForMember(dest => dest.Team2Name, opt => opt.MapFrom(src => src.Team2!.Name));
         }
     }
 }

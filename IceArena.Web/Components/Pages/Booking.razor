@@ -1,25 +1,33 @@
 ﻿@page "/booking"
 @inject HttpClient Http
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
+@using IceArena.Data.Models
+@using System.Linq
 
 <h1 class="bron">У нас вы можете забронировать:</h1>
 
 <div class="bookingsdiv">
-    <div class="bookingdiv" style="background-image: url('../images/ledoviyelka.jpg');">
+    <div class="bookingdiv"
+         style="background-image: url('../images/ledoviyelka.jpg'); cursor: pointer;"
+         @onclick="ShowAvailableSlots">
         <div class="imgh1">
             <h1 class="nazvanie">Ледовая площадка</h1>
         </div>
-        <button class="btn btn-primary" @onclick="ShowAvailableSlots">Узнать более...</button>
-    </div>
-
-    <div class="bookingdiv" style="background-image: url('../images/tren.jpg');">
-        <div class="imgh1">
-            <h1 class="nazvanie">Тренажерный зал</h1>
-        </div>
-        <button class="btn btn-primary" @onclick="ShowAvailableSlots">Узнать более...</button>
     </div>
 </div>
+
+@if (showLoginModal)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h3>Войдите в систему</h3>
+            <p>Для бронирования необходимо войти.</p>
+            <button class="btn btn-secondary" @onclick="CloseLoginModal">Хорошо</button>
+        </div>
+    </div>
+}
 
 @if (isSlotsVisible)
 {
@@ -64,16 +72,31 @@
     </div>
 }
 
+@if (!string.IsNullOrEmpty(notificationMessage))
+{
+    <div class="alert alert-success notification">
+        @notificationMessage
+    </div>
+}
+
 @code {
-    private Dictionary<DateTime, List<IceArena.Data.Models.Booking>> availableSlotsByDate = new Dictionary<DateTime, List<IceArena.Data.Models.Booking>>();
+    private Dictionary<DateTime, List<IceArena.Data.Models.Booking>> availableSlotsByDate = new();
     private DateTime? selectedDate;
     private TimeSpan? selectedTime;
     private bool showConfirmationModal = false;
     private bool isLoading = false;
-    private bool isSlotsVisible = false; 
+    private bool isSlotsVisible = false;
+    private string notificationMessage = "";
+    private bool showLoginModal = false;
 
     protected override async Task OnInitializedAsync()
     {
+        // Не загружаем слоты при инициализации
+    }
+
+    private async Task ShowAvailableSlots()
+    {
+        isSlotsVisible = true;
         await LoadAvailableSlots();
     }
 
@@ -93,12 +116,6 @@
                 availableSlotsByDate = allSlots
                     .GroupBy(slot => slot.Date.Date)
                     .ToDictionary(group => group.Key, group => group.ToList());
-
-                Console.WriteLine($"Загружено дат: {availableSlotsByDate.Count}");
-                foreach (var dateGroup in availableSlotsByDate)
-                {
-                    Console.WriteLine($"Дата: {dateGroup.Key.ToShortDateString()} Слоты: {dateGroup.Value.Count}");
-                }
             }
         }
         catch (Exception ex)
@@ -111,18 +128,45 @@
             StateHasChanged();
         }
     }
-
-    private async Task ShowAvailableSlots()
-    {
-        isSlotsVisible = true; 
-        await LoadAvailableSlots();
-        StateHasChanged();
-    }
-
     private void SelectSlot(IceArena.Data.Models.Booking slot)
     {
         selectedDate = slot.Date;
         selectedTime = slot.StartTime;
+        CheckUserAndOpenModal();
+    }
+
+    private async void CheckUserAndOpenModal()
+    {
+        var userId = await GetCurrentUserIdAsync();
+
+        if (userId <= 0)
+        {
+            showLoginModal = true;
+            StateHasChanged();
+            return;
+        }
+
+        var userBookings = await Http.GetFromJsonAsync<List<IceArena.Data.Models.Booking>>($"api/Booking/user/{userId}");
+
+        if (userBookings != null)
+        {
+            var today = selectedDate?.Date ?? DateTime.UtcNow.Date;
+
+            var bookingsToday = userBookings
+                .Where(b => b.Date.Date == today.Date)
+                .ToList();
+
+            if (bookingsToday.Count >= 2)
+            {
+                notificationMessage = "Вы не можете забронировать более 2 слотов за день.";
+                showLoginModal = false;
+                showConfirmationModal = false;
+                StateHasChanged();
+                return;
+            }
+        }
+
+        showLoginModal = false;
         showConfirmationModal = true;
         StateHasChanged();
     }
@@ -136,23 +180,21 @@
 
             if (bookingId.HasValue)
             {
-                var userId = await GetCurrentUserIdAsync(); 
+                var userId = await GetCurrentUserIdAsync();
                 if (userId > 0)
                 {
                     var response = await Http.PostAsJsonAsync<object>($"api/Booking/confirm/{bookingId.Value}/{userId}", null);
                     if (response.IsSuccessStatusCode)
                     {
+                        notificationMessage = "Бронь успешно подтверждена!";
                         showConfirmationModal = false;
-                        await LoadAvailableSlots(); 
+                        await LoadAvailableSlots();
+                        _ = HideNotificationAfterDelay();
                     }
                     else
                     {
                         Console.WriteLine("Ошибка при подтверждении бронирования.");
                     }
-                }
-                else
-                {
-                    Console.WriteLine("Ошибка: Не удалось получить ID пользователя.");
                 }
             }
         }
@@ -168,5 +210,18 @@
     {
         var userIdString = await LocalStorage.GetItemAsStringAsync("userId");
         return int.TryParse(userIdString, out var userId) ? userId : 0;
+    }
+
+    private void CloseLoginModal()
+    {
+        showLoginModal = false;
+        StateHasChanged();
+    }
+
+    private async Task HideNotificationAfterDelay(int delaySeconds = 5)
+    {
+        await Task.Delay(delaySeconds * 1000);
+        notificationMessage = "";
+        StateHasChanged();
     }
 }

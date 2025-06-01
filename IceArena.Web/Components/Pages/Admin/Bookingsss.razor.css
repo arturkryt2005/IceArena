@@ -1,138 +1,203 @@
 ﻿body {
-    background: #1a1a1a; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: white; 
-    margin: 0;
-    padding: 20px;
+    background-color: #121212; 
+    color: #f0f0f0;
+    font-family: 'Montserrat';
+    line-height: 1.6;
+}
+
+.bookings-container {
+    font-family: 'Montserrat';
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 h3 {
-    font-family: Montserrat;
-    color: #ffcc00;
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    font-family: 'Montserrat';
+    color: #ffd166;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #ffd166;
+    padding-bottom: 15px;
+    letter-spacing: 0.5px;
 }
-
-
-.booking-table {
-    font-family: Montserrat;
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background: #2c2c2c;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    color: white;
-}
-
-    .booking-table th, .booking-table td {
-        padding: 15px;
-        text-align: left;
-        border-bottom: 1px solid #444; 
-    }
-
-    .booking-table th {
-        background-color: #333; 
-        color: #ffcc00;
-        font-weight: bold;
-        text-transform: uppercase;
-        font-size: 14px;
-    }
-
-    .booking-table tr:hover {
-        background-color: #3a3a3a;
-        transition: background-color 0.3s ease;
-    }
-
-.booking-row.available {
-    background-color: #2d4a2d; 
-}
-
-.booking-row.booked {
-    background-color: #2d3a4a; 
-}
-
-.booking-row.pending {
-    background-color: #4a3d2d; 
-}
-
-.btn-primary {
-    background-color: #ffcc00; 
-    color: #1a1a1a; 
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 14px;
-    font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-    .btn-primary:hover {
-        background-color: #e6b800;
-        transform: translateY(-2px);
-    }
-
-    .btn-primary:active {
-        transform: translateY(0);
-    }
 
 .sort-options {
-    margin-bottom: 20px;
+    font-family: 'Montserrat';
+    margin-bottom: 30px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
+
     .sort-options label {
+        font-family: 'Montserrat';
+        font-weight: 500;
+        color: #ffd166;
         font-size: 16px;
-        color: #ffcc00; 
     }
 
     .sort-options select {
-        padding: 8px 12px;
-        border-radius: 25px;
-        border: 1px solid #444; 
-        background-color: #333; 
-        font-size: 14px;
-        color: white; 
-        cursor: pointer;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        font-family: 'Montserrat';
+        padding: 10px 16px;
+        border: 1px solid #ffd166;
+        border-radius: 6px;
+        background-color: #2a2a2a;
+        color: #ffd166;
+        font-size: 15px;
+        font-family: 'Montserrat', sans-serif;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
         .sort-options select:hover {
-            border-color: #ffcc00;
-            box-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
+            border-color: #ffd166;
+            font-family: 'Montserrat';
+            box-shadow: 0 2px 8px rgba(255, 209, 102, 0.2);
         }
 
-        .sort-options select:focus {
-            outline: none;
-            border-color: #ffcc00; 
-            box-shadow: 0 0 12px rgba(255, 204, 0, 0.5);
-        }
-
-p {
-    font-size: 16px;
-    color: #ffcc00; 
-    text-align: center;
-    margin-top: 20px;
+.booking-table {
+    font-family: 'Montserrat';
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
 }
 
-@keyframes fadeIn {
+    .booking-table th {
+        font-family: 'Montserrat';
+        background-color: #ffd166;
+        color: #1a1a1a;
+        padding: 16px 20px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: 0.3px;
+    }
+
+    .booking-table td {
+        font-family: 'Montserrat';
+        padding: 16px 20px;
+        border-bottom: 1px solid #333;
+        vertical-align: middle;
+        color: #f0f0f0;
+        font-weight: 400;
+        font-size: 14px;
+    }
+
+    .booking-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .booking-table tr:hover {
+        background-color: #2a2a2a;
+    }
+
+.booking-row.pending {
+    font-family: 'Montserrat';
+    background-color: rgba(255, 209, 102, 0.08);
+    border-left: 4px solid #ffd166;
+}
+
+.booking-row.booked {
+    background-color: rgba(106, 176, 76, 0.08);
+    border-left: 4px solid #6ab04c;
+}
+
+.booking-row.cancelled {
+    background-color: rgba(238, 82, 83, 0.08);
+    border-left: 4px solid #ee5253;
+}
+
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-primary {
+    background-color: #ffd166;
+    color: #1a1a1a;
+}
+
+    .btn-primary:hover {
+        background-color: #ffdf8e;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 209, 102, 0.3);
+    }
+
+.message {
+    margin-top: 30px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border-left: 4px solid;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.message-success {
+    background-color: rgba(106, 176, 76, 0.15);
+    color: #a8e6a8;
+    border-left-color: #6ab04c;
+}
+
+.message-error {
+    background-color: rgba(238, 82, 83, 0.15);
+    color: #ffb3b3;
+    border-left-color: #ee5253;
+}
+
+.user-info {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+    .user-info strong {
+        font-size: 15px;
+        color: #ffd166;
+        font-weight: 500;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+/* Улучшенные отступы и размеры */
+p {
+    font-size: 15px;
+    margin: 15px 0;
+}
+
+/* Анимации */
+@@keyframes fadeIn {
     from {
         opacity: 0;
+        transform: translateY(10px);
     }
 
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.booking-table, .sort-options, p {
-    animation: fadeIn 0.5s ease-in-out;
+.booking-table tr {
+    animation: fadeIn 0.4s ease-out forwards;
 }
+
+    .booking-table tr:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .booking-table tr:nth-child(2) {
+        animation-delay: 0.2s;
+    }

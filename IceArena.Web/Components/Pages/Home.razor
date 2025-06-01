@@ -46,9 +46,9 @@ else
                 @foreach (var match in matches)
                 {
                     <tr>
-                        <td>@match.MatchDate.ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>@(match.Team1Id == default ? "Неизвестно" : match.Team1Id.ToString())</td>
-                        <td>@(match.Team2Id == default ? "Неизвестно" : match.Team2Id.ToString())</td>
+                        <td>@match.MatchDate?.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@match.Team1Name</td>
+                        <td>@match.Team1Name</td>
                         <td>@(match.Location ?? "Не указано")</td>
                         <td>@(match.Result ?? "Планируется")</td>
                     </tr>

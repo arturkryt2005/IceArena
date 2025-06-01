@@ -6,7 +6,6 @@ using IceArena.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,13 +32,13 @@ builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-builder.Services.AddScoped<IBookingService, BookingServicecs>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IMatchService, MatchService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

@@ -1,20 +1,16 @@
-using IceArena.Web.Components;
-using IceArena.Web.Services;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using AutoMapper;
-using IceArena.Web.Mapping;
-using IceArena.Web.Interfaces;
-using MudBlazor.Services;
-using System.Security.Claims;
 using Blazored.LocalStorage;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Components.Authorization;
+using IceArena.Data;
 using IceArena.Data.Repositories.Implementations;
 using IceArena.Data.Repositories.Interfaces;
-using IceArena.Data; 
+using IceArena.Web.Components;
+using IceArena.Web.Interfaces;
+using IceArena.Web.Mapping;
+using IceArena.Web.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +25,6 @@ builder.Services.AddDbContext<IceArenaDbContext>(options =>
 
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
-builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddHttpClient<ApiService>(client =>

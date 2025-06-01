@@ -7,7 +7,8 @@ namespace IceArena.Services.Interfaces
         Task<Booking?> GetBookingAsync(int id);
         Task<IEnumerable<Booking>> GetBookingsAsync();
         Task<IEnumerable<Booking>> GetAvailableSlotsAsync(DateTime date);
-        Task<IEnumerable<Booking>> GetAvailablSlotsAsync();
+        Task<IEnumerable<Booking>> GetUserBookingsAsync(int userId);
+        Task<IEnumerable<Booking>> GetAvailableSlotsAsync();
         Task CreateBooking(Booking booking);
         Task UpdateBooking(Booking booking);
         Task DeleteBooking(int id);

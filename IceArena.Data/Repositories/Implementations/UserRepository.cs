@@ -28,6 +28,11 @@ namespace IceArena.Data.Repositories.Implementations
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User?> GetUserByPhoneAsync(string phone)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phone);
+        }
+
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _context.Users.ToListAsync();
