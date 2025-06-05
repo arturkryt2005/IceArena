@@ -149,8 +149,8 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
-    width: calc(100% - 10px); /* Добавлено */
-    margin: 5px; /* Добавлено */
+    width: calc(100% - 10px); 
+    margin: 5px; 
 }
 
     .delete-button:hover {

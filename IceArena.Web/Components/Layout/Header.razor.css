@@ -24,7 +24,7 @@ header {
 }
 
 nav {
-    width: 50%;
+    width: 80%;
     display: flex;
     justify-content: space-between;
     font-family: Montserrat;

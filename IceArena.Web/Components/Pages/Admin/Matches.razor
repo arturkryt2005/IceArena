@@ -17,7 +17,7 @@
                 <label for="team1">Команда 1:</label>
                 <InputSelect id="team1" class="form-control" @bind-Value="newMatch.Team1Id">
                     <option value="">Выберите команду</option>
-                    @if (teams != null) 
+                    @if (teams != null)
                     {
                         @foreach (var team in teams)
                         {
@@ -32,7 +32,7 @@
                 <label for="team2">Команда 2:</label>
                 <InputSelect id="team2" class="form-control" @bind-Value="newMatch.Team2Id">
                     <option value="">Выберите команду</option>
-                    @if (teams != null) 
+                    @if (teams != null)
                     {
                         @foreach (var team in teams)
                         {
@@ -98,6 +98,7 @@
                         <td>@match.Location</td>
                         <td>@match.Result</td>
                         <td>
+                            <button class="edit-button" @onclick="() => OpenEditModal(match)">Редактировать</button>
                             <button class="delete-button" @onclick="() => DeleteMatch(match.Id)">Удалить</button>
                         </td>
                     </tr>
@@ -105,12 +106,91 @@
             </tbody>
         </table>
     }
+
+    @if (showEditModal)
+    {
+        <div class="modal-overlay" @onclick="CloseEditModal">
+            <div class="modal-content" @onclick:stopPropagation>
+                <h3>Редактировать матч</h3>
+                <EditForm Model="@editMatch" OnValidSubmit="HandleEditSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <label for="editTeam1">Команда 1:</label>
+                        <InputSelect id="editTeam1" class="form-control" @bind-Value="editMatch.Team1Id">
+                            <option value="">Выберите команду</option>
+                            @if (teams != null)
+                            {
+                                @foreach (var team in teams)
+                                {
+                                    <option value="@team.Id">@team.Name</option>
+                                }
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => editMatch.Team1Id)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editTeam2">Команда 2:</label>
+                        <InputSelect id="editTeam2" class="form-control" @bind-Value="editMatch.Team2Id">
+                            <option value="">Выберите команду</option>
+                            @if (teams != null)
+                            {
+                                @foreach (var team in teams)
+                                {
+                                    <option value="@team.Id">@team.Name</option>
+                                }
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => editMatch.Team2Id)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editMatchDate">Дата и время матча:</label>
+                        <input type="datetime-local" id="editMatchDate" class="form-control" @bind="editMatch.MatchDate" />
+                        <ValidationMessage For="@(() => editMatch.MatchDate)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editLocation">Место проведения:</label>
+                        <InputText id="editLocation" class="form-control" @bind-Value="editMatch.Location" />
+                        <ValidationMessage For="@(() => editMatch.Location)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editResult">Результат:</label>
+                        <InputText id="editResult" class="form-control" @bind-Value="editMatch.Result" />
+                        <ValidationMessage For="@(() => editMatch.Result)" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseEditModal">Отмена</button>
+                </EditForm>
+            </div>
+        </div>
+    }
+
+    @if (showErrorModal)
+    {
+        <div class="modal-overlay" @onclick="CloseErrorModal">
+            <div class="modal-content" @onclick:stopPropagation>
+                <h3>Ошибка</h3>
+                <p>@errorMessage</p>
+                <button class="btn btn-secondary" @onclick="CloseErrorModal">Закрыть</button>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
     private List<Match>? matches;
     private List<Team>? teams = new List<Team>();
     private Match newMatch = new Match();
+    private Match editMatch = new Match();
+    private bool showEditModal = false;
+    private bool showErrorModal = false;
+    private string errorMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -131,37 +211,37 @@
         {
             if (newMatch.Team1Id == newMatch.Team2Id)
             {
-                Console.WriteLine("Команда 1 и команда 2 не могут быть одинаковыми.");
+                ShowError("Команда 1 и команда 2 не могут быть одинаковыми.");
                 return;
             }
 
             if (newMatch.MatchDate < DateTime.UtcNow)
             {
-                Console.WriteLine("Дата матча не может быть в прошлом.");
+                ShowError("Дата матча не может быть в прошлом.");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(newMatch.Location))
             {
-                Console.WriteLine("Место проведения обязательно.");
+                ShowError("Место проведения обязательно.");
                 return;
             }
 
             if (newMatch.Location.Length > 100)
             {
-                Console.WriteLine("Место проведения не может быть длиннее 100 символов.");
+                ShowError("Место проведения не может быть длиннее 100 символов.");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(newMatch.Result))
             {
-                Console.WriteLine("Результат обязателен.");
+                ShowError("Результат обязателен.");
                 return;
             }
 
             if (newMatch.Result.Length > 50)
             {
-                Console.WriteLine("Результат не может быть длиннее 50 символов.");
+                ShowError("Результат не может быть длиннее 50 символов.");
                 return;
             }
 
@@ -175,17 +255,17 @@
             if (response.IsSuccessStatusCode)
             {
                 matches = await Http.GetFromJsonAsync<List<Match>>("api/Match");
-                newMatch = new Match(); 
+                newMatch = new Match();
             }
             else
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Ошибка при добавлении матча: {errorMessage}");
+                ShowError($"Ошибка при добавлении матча: {errorMessage}");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Исключение при добавлении матча: {ex.Message}");
+            ShowError($"Исключение при добавлении матча: {ex.Message}");
         }
     }
 
@@ -202,12 +282,102 @@
             else
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Ошибка при удалении матча: {errorMessage}");
+                ShowError($"Ошибка при удалении матча: {errorMessage}");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Исключение при удалении матча: {ex.Message}");
+            ShowError($"Исключение при удалении матча: {ex.Message}");
         }
+    }
+
+    private void OpenEditModal(Match match)
+    {
+        editMatch = new Match
+            {
+                Id = match.Id,
+                Team1Id = match.Team1Id,
+                Team2Id = match.Team2Id,
+                MatchDate = match.MatchDate,
+                Location = match.Location,
+                Result = match.Result
+            };
+        showEditModal = true;
+    }
+
+    private async Task HandleEditSubmit()
+    {
+        try
+        {
+            if (editMatch.Team1Id == editMatch.Team2Id)
+            {
+                ShowError("Команда 1 и команда 2 не могут быть одинаковыми.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(editMatch.Location))
+            {
+                ShowError("Место проведения обязательно.");
+                return;
+            }
+
+            if (editMatch.Location.Length > 100)
+            {
+                ShowError("Место проведения не может быть длиннее 100 символов.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(editMatch.Result))
+            {
+                ShowError("Результат обязателен.");
+                return;
+            }
+
+            if (editMatch.Result.Length > 50)
+            {
+                ShowError("Результат не может быть длиннее 50 символов.");
+                return;
+            }
+
+            if (editMatch.MatchDate.HasValue)
+            {
+                editMatch.MatchDate = DateTime.SpecifyKind(editMatch.MatchDate.Value, DateTimeKind.Utc);
+            }
+
+            var response = await Http.PutAsJsonAsync($"api/Match/{editMatch.Id}", editMatch);
+
+            if (response.IsSuccessStatusCode)
+            {
+                matches = await Http.GetFromJsonAsync<List<Match>>("api/Match");
+                CloseEditModal();
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ShowError($"Ошибка при редактировании матча: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Исключение при редактировании матча: {ex.Message}");
+        }
+    }
+
+    private void CloseEditModal()
+    {
+        showEditModal = false;
+        editMatch = new Match();
+    }
+
+    private void ShowError(string message)
+    {
+        errorMessage = message;
+        showErrorModal = true;
+    }
+
+    private void CloseErrorModal()
+    {
+        showErrorModal = false;
+        errorMessage = "";
     }
 }

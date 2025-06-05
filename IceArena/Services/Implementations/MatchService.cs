@@ -31,6 +31,7 @@ namespace IceArena.Services.Implementations
 
         public async Task UpdateMatchAsync(Match match)
         {
+            Console.WriteLine($"Updating match with ID: {match.Id}");
             await _matchRepository.UpdateAsync(match);
             await _matchRepository.SaveChangesAsync();
         }

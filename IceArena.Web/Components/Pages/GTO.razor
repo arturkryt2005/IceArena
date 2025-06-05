@@ -1,0 +1,95 @@
+﻿@page "/sorev"
+@rendermode InteractiveServer
+@using IceArena.Data.Models
+@using IceArena.Services.Interfaces
+@inject ICompetitionService CompetitionService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Соревнования</h3>
+
+@if (errorMessage != null)
+{
+    <p>@errorMessage</p>
+}
+else if (competitions == null)
+{
+    <p>Загрузка...</p>
+}
+else if (competitions.Count == 0)
+{
+    <p>Нет доступных соревнований.</p>
+}
+else
+{
+    <ul>
+        @foreach (var competition in competitions)
+        {
+            <li>@competition.Name</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Competitions>? competitions;
+    private int currentUserId;
+    private string? errorMessage;
+    private bool isInitialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine("Инициализация компонента...");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка инициализации: {ex.Message}";
+            Console.WriteLine(errorMessage);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isInitialized)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", "Инициализация JavaScript...");
+                currentUserId = await GetCurrentUserIdAsync();
+                if (currentUserId <= 0)
+                {
+                    errorMessage = "Вы не авторизованы. Пожалуйста, войдите в систему.";
+                    Console.WriteLine(errorMessage);
+                }
+                else
+                {
+                    Console.WriteLine("Получение соревнований...");
+                    competitions = await CompetitionService.GetAllCompetitionsAsync();
+                    if (competitions == null)
+                    {
+                        errorMessage = "Список соревнований пуст или произошла ошибка при загрузке.";
+                        Console.WriteLine(errorMessage);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Загружено соревнований: {competitions.Count}");
+                    }
+                }
+                isInitialized = true;
+                StateHasChanged(); 
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Ошибка загрузки данных: {ex.Message}";
+                Console.WriteLine(errorMessage);
+            }
+        }
+    }
+
+    private async Task<int> GetCurrentUserIdAsync()
+    {
+        return await LocalStorage.GetItemAsync<int>("userId");
+    }
+}

@@ -1,0 +1,288 @@
+﻿@page "/ourteam"
+@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<h3>OurTeam</h3>
+
+@if (coach == null || players == null || playerStats == null || goalieStats == null)
+{
+    <p>Загрузка данных...</p>
+}
+else if (errorMessage != null)
+{
+    <p style="color: red;">Ошибка: @errorMessage</p>
+}
+else
+{
+    <div class="team-container">
+        <h4>Тренер</h4>
+        <table class="players-table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Дата рождения</th>
+                    <th>Место рождения</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@coach.Name</td>
+                    <td>@coach.BirthDate</td>
+                    <td>@coach.BirthPlace</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Игроки</h4>
+        <table class="players-table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Дата рождения</th>
+                    <th>Амплуа</th>
+                    <th>№ Карты</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var player in players)
+                {
+                    <tr>
+                        <td>@player.Name</td>
+                        <td>@player.BirthDate</td>
+                        <td>@player.Position</td>
+                        <td>@player.CardNumber</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <h4>Статистика игроков</h4>
+        <table class="players-table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Игры</th>
+                    <th>Голы</th>
+                    <th>Передачи</th>
+                    <th>Очки</th>
+                    <th>Штраф</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var stat in playerStats)
+                {
+                    <tr>
+                        <td>@stat.Name</td>
+                        <td>@stat.Games</td>
+                        <td>@stat.Goals</td>
+                        <td>@stat.Assists</td>
+                        <td>@stat.Points</td>
+                        <td>@stat.Penalties</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <h4>Статистика вратарей</h4>
+        <table class="players-table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Игры</th>
+                    <th>ИВ</th>
+                    <th>ПШ</th>
+                    <th>КН</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var goalie in goalieStats)
+                {
+                    <tr>
+                        <td>@goalie.Name</td>
+                        <td>@goalie.Games</td>
+                        <td>@goalie.TimePlayed</td>
+                        <td>@goalie.GoalsAgainst</td>
+                        <td>@goalie.SavePercentage</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private Coach coach;
+    private List<Player> players;
+    private List<PlayerStat> playerStats;
+    private List<GoalieStat> goalieStats;
+    private string errorMessage;
+
+    private class Coach
+    {
+        public string Name { get; set; }
+        public string BirthDate { get; set; }
+        public string BirthPlace { get; set; }
+    }
+
+    private class Player
+    {
+        public string Name { get; set; }
+        public string BirthDate { get; set; }
+        public string Position { get; set; }
+        public string CardNumber { get; set; }
+    }
+
+    private class PlayerStat
+    {
+        public string Name { get; set; }
+        public int Games { get; set; }
+        public int Goals { get; set; }
+        public int Assists { get; set; }
+        public int Points { get; set; }
+        public int Penalties { get; set; }
+    }
+
+    private class GoalieStat
+    {
+        public string Name { get; set; }
+        public int Games { get; set; }
+        public string TimePlayed { get; set; }
+        public int GoalsAgainst { get; set; }
+        public double SavePercentage { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine("Начинаем загрузку данных...");
+            var url = "https://fhrt.ru/api/roster/328/16"; // Предполагаемый API URL, основанный на структуре
+            var response = await Http.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = $"Не удалось загрузить данные. Статус: {response.StatusCode}. Проверь API URL.";
+                Console.WriteLine(errorMessage);
+                // Попробуем загрузить app.js и проанализировать
+                var jsUrl = "https://fhrt.ru/js/app.js?id=23d0a9fbab036064ccb7";
+                var jsResponse = await Http.GetAsync(jsUrl);
+                if (jsResponse.IsSuccessStatusCode)
+                {
+                    var jsContent = await jsResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine("JavaScript получен, длина: " + jsContent.Length);
+                    try
+                    {
+                        await File.WriteAllTextAsync("debug.js", jsContent);
+                        Console.WriteLine("JavaScript сохранен в debug.js");
+                    }
+                    catch (IOException ex)
+                    {
+                        Console.WriteLine($"Не удалось сохранить файл: {ex.Message}.");
+                    }
+                    // Простая проверка на наличие данных
+                    if (jsContent.Contains("coaches") || jsContent.Contains("players"))
+                    {
+                        errorMessage = "Данные могут быть в app.js. Проверь debug.js и сообщи структуру.";
+                        Console.WriteLine(errorMessage);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Не удалось загрузить app.js. Статус: {jsResponse.StatusCode}");
+                }
+                return;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("JSON получен, длина: " + json.Length);
+
+            // Сохраним JSON для анализа
+            try
+            {
+                await File.WriteAllTextAsync("debug.json", json);
+                Console.WriteLine("JSON сохранен в debug.json");
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Не удалось сохранить файл: {ex.Message}. Продолжаем без сохранения.");
+            }
+
+            // Предполагаемая структура JSON
+            var data = JsonSerializer.Deserialize<TeamData>(json);
+            if (data == null || data.Coaches == null || data.Players == null || data.PlayerStats == null || data.GoalieStats == null)
+            {
+                errorMessage = "Не удалось разобрать JSON данные.";
+                Console.WriteLine(errorMessage);
+                return;
+            }
+
+            // Тренеры
+            if (data.Coaches.Any())
+            {
+                coach = data.Coaches.First();
+                Console.WriteLine($"Найден тренер: {coach.Name}");
+            }
+            else
+            {
+                errorMessage = "Данные о тренерах не найдены.";
+                Console.WriteLine(errorMessage);
+                return;
+            }
+
+            // Игроки
+            players = data.Players;
+            Console.WriteLine($"Найдено игроков: {players.Count}");
+            if (players.Count == 0)
+            {
+                errorMessage = "Данные об игроках не найдены.";
+                Console.WriteLine(errorMessage);
+                return;
+            }
+
+            // Статистика игроков
+            playerStats = data.PlayerStats;
+            Console.WriteLine($"Найдено строк статистики игроков: {playerStats.Count}");
+            if (playerStats.Count == 0)
+            {
+                errorMessage = "Данные о статистике игроков не найдены.";
+                Console.WriteLine(errorMessage);
+                return;
+            }
+
+            // Статистика вратарей
+            goalieStats = data.GoalieStats;
+            Console.WriteLine($"Найдено строк статистики вратарей: {goalieStats.Count}");
+            if (goalieStats.Count == 0)
+            {
+                errorMessage = "Данные о статистике вратарей не найдены.";
+                Console.WriteLine(errorMessage);
+                return;
+            }
+
+            Console.WriteLine("Данные успешно загружены.");
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Ошибка сети: {ex.Message}. Проверь подключение или доступ к сайту.";
+            Console.WriteLine(errorMessage);
+        }
+        catch (JsonException ex)
+        {
+            errorMessage = $"Ошибка формата JSON: {ex.Message}. Проверь API URL и структуру данных.";
+            Console.WriteLine(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Неизвестная ошибка: {ex.Message}. Обнови страницу или попробуй позже.";
+            Console.WriteLine(errorMessage);
+        }
+    }
+
+    private class TeamData
+    {
+        public List<Coach> Coaches { get; set; }
+        public List<Player> Players { get; set; }
+        public List<PlayerStat> PlayerStats { get; set; }
+        public List<GoalieStat> GoalieStats { get; set; }
+    }
+}

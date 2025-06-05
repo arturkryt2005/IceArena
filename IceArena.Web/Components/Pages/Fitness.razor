@@ -1,0 +1,105 @@
+﻿@page "/fit"
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@using IceArena.Data.Models
+@using System.Linq
+
+<div class="bron">АБОНЕМЕНТЫ В ТРЕНАЖЕРНЫЙ ЗАЛ</div>
+
+<div class="subscription-container">
+    <div class="subscription-card">
+        <img src="../images/tren.jpg" class="gym-image" alt="Тренажерный зал" />
+        <h3 class="subscription-title">МЕСЯЧНЫЙ</h3>
+        <div class="subscription-price">1 000 ₽</div>
+        <ul class="subscription-features">
+            <li>Неограниченный доступ в зал</li>
+            <li>Групповые занятия</li>
+            <li>Персональная консультация</li>
+            <li>Бесплатная парковка</li>
+        </ul>
+        <button class="subscribe-btn" @onclick="ShowMonthlyModal">ОФОРМИТЬ</button>
+    </div>
+
+    <div class="subscription-card" style="transform: scale(1.05);">
+        <div class="best-value">ВЫГОДА 15%</div>
+        <img src="../images/tren.jpg" class="gym-image" alt="Тренажерный зал" />
+        <h3 class="subscription-title">ПОЛУГОДОВОЙ</h3>
+        <div class="subscription-price">4 000 ₽</div>
+        <ul class="subscription-features">
+            <li>Все преимущества месячного</li>
+            <li>Скидка 15%</li>
+            <li>2 персональные тренировки</li>
+            <li>Фитнес-тестирование</li>
+        </ul>
+        <button class="subscribe-btn" @onclick="ShowHalfYearModal">ОФОРМИТЬ</button>
+    </div>
+
+    <div class="subscription-card">
+        <div class="best-value">ВЫГОДА 30%</div>
+        <img src="../images/tren.jpg" class="gym-image" alt="Тренажерный зал" />
+        <h3 class="subscription-title">ГОДОВОЙ</h3>
+        <div class="subscription-price">7 000 ₽</div>
+        <ul class="subscription-features">
+            <li>Все преимущества полугодового</li>
+            <li>Скидка 30%</li>
+            <li>5 персональных тренировок</li>
+            <li>Программа питания</li>
+            <li>SPA-зона</li>
+        </ul>
+        <button class="subscribe-btn" @onclick="ShowYearlyModal">ОФОРМИТЬ</button>
+    </div>
+</div>
+
+<div class="modal-overlay @(showModal ? "active" : "")" @onclick="CloseModal">
+    <div class="modal-content" @onclick:stopPropagation="true">
+        <div class="modal-header">
+            <h3 class="modal-title">УСЛОВИЯ АБОНЕМЕНТА: @currentSubscriptionTitle</h3>
+            <button class="close-btn" @onclick="CloseModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <ul class="terms-list">
+                <li>Абонемент действует с момента активации в течение выбранного периода</li>
+                <li>Абонемент является именным и не подлежит передаче третьим лицам</li>
+                <li>При потере абонемента восстановление возможно за дополнительную плату (500 ₽)</li>
+                <li>Зал открыт с 7:00 до 23:00 ежедневно, кроме официальных праздников</li>
+                <li>Персональные тренировки необходимо бронировать заранее</li>
+                <li>Абонемент можно заморозить на срок до 14 дней в году (только для полугодовых и годовых абонементов)</li>
+                <li>При посещении необходимо иметь при себе сменную обувь и полотенце</li>
+                <li>Администрация оставляет за собой право изменять расписание групповых занятий</li>
+                <li>Возврат средств за неиспользованный период осуществляется с удержанием 20% от остатка суммы</li>
+                <li>При нарушении правил клуба администрация может аннулировать абонемент без возврата средств</li>
+            </ul>
+        </div>
+        <button class="close-modal-btn" @onclick="CloseModal">ЗАКРЫТЬ</button>
+    </div>
+</div>
+
+@code {
+    private bool showModal = false;
+    private string currentSubscriptionType = "";
+    private string currentSubscriptionTitle = "";
+
+    private void ShowMonthlyModal() => ShowModal("monthly");
+    private void ShowHalfYearModal() => ShowModal("half-year");
+    private void ShowYearlyModal() => ShowModal("yearly");
+
+    private void ShowModal(string subscriptionType)
+    {
+        currentSubscriptionType = subscriptionType;
+        currentSubscriptionTitle = subscriptionType switch
+        {
+            "monthly" => "МЕСЯЧНЫЙ",
+            "half-year" => "ПОЛУГОДОВОЙ",
+            "yearly" => "ГОДОВОЙ",
+            _ => ""
+        };
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+}

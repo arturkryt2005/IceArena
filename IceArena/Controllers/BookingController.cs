@@ -47,6 +47,31 @@ namespace IceArena.Controllers
             return Ok(slots);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateBooking([FromBody] Booking booking)
+        {
+            if (booking == null)
+            {
+                return BadRequest("Данные бронирования не указаны.");
+            }
+
+            if (booking.CreatedAt == DateTime.MinValue)
+                booking.CreatedAt = DateTime.UtcNow;
+
+            if (booking.StartTime == TimeSpan.Zero)
+                booking.StartTime = booking.Date.TimeOfDay;
+
+            if (booking.EndTime == TimeSpan.Zero)
+            {
+                booking.EndTime = booking.StartTime.Add(TimeSpan.FromMinutes(booking.Duration));
+            }
+
+            if (string.IsNullOrEmpty(booking.Status))
+                booking.Status = "Pending";
+
+            await _bookingService.CreateBooking(booking);
+            return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
+        }
 
         [HttpPost("confirm/{bookingId}/{userId}")]
         public async Task<IActionResult> ConfirmBooking(int bookingId, int userId)

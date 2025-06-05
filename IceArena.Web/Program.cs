@@ -2,6 +2,8 @@ using Blazored.LocalStorage;
 using IceArena.Data;
 using IceArena.Data.Repositories.Implementations;
 using IceArena.Data.Repositories.Interfaces;
+using IceArena.Services.Implementations;
+using IceArena.Services.Interfaces;
 using IceArena.Web.Components;
 using IceArena.Web.Interfaces;
 using IceArena.Web.Mapping;
@@ -31,10 +33,22 @@ builder.Services.AddHttpClient<ApiService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7118/api/");
 });
+
 builder.Services.AddHttpClient<IMatchService, MatchService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7118/api/");
 });
+
+builder.Services.AddHttpClient<ICompetitionService, CompetitionService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7118/api/");
+});
+
+builder.Services.AddHttpClient<IMatchServiceee, MatchServiceee>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7118/api/");
+});
+
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthService>();

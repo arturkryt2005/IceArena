@@ -1,37 +1,60 @@
 ﻿@page "/dashboard"
+@rendermode InteractiveServer
 @inject HttpClient Http
+@inject IJSRuntime JSRuntime
 @using IceArena.Data.Models
 
 <h3>Админская часть</h3>
 
 <div class="dashboard-container">
-    <div class="stats-cards">
-        <div class="card">
+    <div class="stats-cards" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="card" style="width: 150px; height: 100px; padding: 5px;">
             <div class="card-icon">📊</div>
             <div class="card-content">
-                <h4>Всего бронирований</h4>
+                <h4>Всего</h4>
                 <p>@totalBookings</p>
             </div>
         </div>
-        <div class="card">
+        <div class="card" style="width: 150px; height: 100px; padding: 5px;">
             <div class="card-icon">✅</div>
             <div class="card-content">
                 <h4>Доступно</h4>
                 <p>@availableBookings</p>
             </div>
         </div>
-        <div class="card">
+        <div class="card" style="width: 150px; height: 100px; padding: 5px;">
             <div class="card-icon">⏳</div>
             <div class="card-content">
                 <h4>В ожидании</h4>
                 <p>@pendingBookings</p>
             </div>
         </div>
-        <div class="card">
+        <div class="card" style="width: 150px; height: 100px; padding: 5px;">
             <div class="card-icon">❌</div>
             <div class="card-content">
                 <h4>Подтверждено</h4>
                 <p>@bookedBookings</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-icon">📈</div>
+            <div class="card-content">
+                <h4>Загрузка</h4>
+                <p>@weeklyOccupancyPercent.ToString("F2")%</p>
+            </div>
+        </div>
+        <div class="card" style="width: 150px; height: 100px; padding: 5px;">
+            <div class="card-icon">📊</div>
+            <div class="card-content">
+                <h4>Среднее/день</h4>
+                <p>@(bookingsByDay.Any() ? Math.Round(averageBookingsPerDay, 2) : 0)</p>
+            </div>
+        </div>
+        <div class="card" style="width: 150px; height: 100px; padding: 5px;">
+            <div class="card-icon">🔝</div>
+            <div class="card-content">
+                <h4>Макс/день</h4>
+                <p>@(bookingsByDay.Any() ? bookingsByDay.Max(b => b.Count) : 0)</p>
             </div>
         </div>
     </div>
@@ -70,9 +93,27 @@
         </table>
     </div>
 
+    <div class="booking-trends">
+        <h4>Загрузка по дням недели</h4>
+        <canvas id="dayChart" width="400" height="200" style="display: block; width: 400px; height: 200px; border: 1px solid black;"></canvas>
+        @if (bookingsByDay.Any())
+        {
+            <p>Данные: @string.Join(", ", bookingsByDay.Select(b => $"{b.Day}: {b.Count}"))</p>
+        }
+        else
+        {
+            <p>Нет данных для отображения.</p>
+        }
+    </div>
+
+    <div class="booking-status">
+        <h4>Распределение статусов</h4>
+        <canvas id="statusChart" width="400" height="200" style="display: block; width: 400px; height: 200px; border: 1px solid black;"></canvas>
+    </div>
+
     <div class="action-buttons">
-        <button class="btn btn-secondary" @* @onclick="ExportData" *@>Экспорт данных</button>
-        <button class="btn btn-danger">Очистить логи</button>
+        <button id="exportButton" name="exportButton" class="btn btn-secondary" @* @onclick="ExportData" *@>Экспорт данных</button>
+        <button id="clearLogsButton" name="clearLogsButton" class="btn btn-danger">Очистить логи</button>
     </div>
 </div>
 
@@ -81,38 +122,143 @@
     private int pendingBookings = 0;
     private int availableBookings = 0;
     private int bookedBookings = 0;
+    private List<DayBooking> bookingsByDay = new();
+    private List<Booking> bookings = new(); 
+    private bool isChartRendered = false;
+    private bool isStatusChartRendered = false;
+    private bool isTrendChartRendered = false;
+    private double weeklyOccupancyPercent = 0;
+    private double averageBookingsPerDay = 0;
 
-    /// <summary>
-    /// фцв
-    /// </summary>
-    /// <returns></returns>
+    public class DayBooking
+    {
+        public string Day { get; set; }
+        public int Count { get; set; }
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        var bookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
-        if (bookings != null)
+        var fetchedBookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
+        if (fetchedBookings != null)
         {
+            bookings = fetchedBookings;
             totalBookings = bookings.Count;
             availableBookings = bookings.Count(b => b.Status == "Available");
             pendingBookings = bookings.Count(b => b.Status == "Pending");
             bookedBookings = bookings.Count(b => b.Status == "Booked");
-        }
 
+            bookingsByDay = bookings
+                .GroupBy(b => b.Date.DayOfWeek)
+                .Select(g => new DayBooking
+                    {
+                        Day = g.Key switch
+                        {
+                            DayOfWeek.Monday => "Понедельник",
+                            DayOfWeek.Tuesday => "Вторник",
+                            DayOfWeek.Wednesday => "Среда",
+                            DayOfWeek.Thursday => "Четверг",
+                            DayOfWeek.Friday => "Пятница",
+                            DayOfWeek.Saturday => "Суббота",
+                            DayOfWeek.Sunday => "Воскресенье",
+                            _ => g.Key.ToString()
+                        },
+                        Count = g.Count()
+                    })
+                .DistinctBy(g => g.Day)
+                .OrderBy(g => g.Day switch
+                {
+                    "Понедельник" => 1,
+                    "Вторник" => 2,
+                    "Среда" => 3,
+                    "Четверг" => 4,
+                    "Пятница" => 5,
+                    "Суббота" => 6,
+                    "Воскресенье" => 7,
+                    _ => 0
+                })
+                .ToList();
+
+            int maxWeeklyCapacity = 70; 
+            int totalWeeklyBookings = bookingsByDay.Sum(b => b.Count);
+            weeklyOccupancyPercent = (double)totalWeeklyBookings / maxWeeklyCapacity * 100;
+
+            averageBookingsPerDay = bookingsByDay.Any() ? (double)totalWeeklyBookings / bookingsByDay.Count : 0;
+
+            int maxBookingsPerDay = bookingsByDay.Any() ? bookingsByDay.Max(b => b.Count) : 0;
+
+            Console.WriteLine($"Загружено бронирований: {totalBookings}");
+            Console.WriteLine("Данные по дням:");
+            foreach (var day in bookingsByDay)
+            {
+                Console.WriteLine($"День: {day.Day}, Количество: {day.Count}");
+            }
+            Console.WriteLine($"Процент загрузки: {weeklyOccupancyPercent}%");
+            Console.WriteLine($"Среднее бронирований в день: {averageBookingsPerDay}");
+            Console.WriteLine($"Максимум бронирований в день: {maxBookingsPerDay}");
+
+            StateHasChanged();
+        }
+        else
+        {
+            Console.WriteLine("Данные из API не получены.");
+        }
     }
 
-    // private async Task ExportData()
-    // {
-    //     var bookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
-    //     if (bookings == null) return;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Console.WriteLine($"OnAfterRenderAsync вызван. firstRender: {firstRender}, isChartRendered: {isChartRendered}, bookingsByDay.Any(): {bookingsByDay.Any()}");
+        if (!isChartRendered && bookingsByDay.Any())
+        {
+            Console.WriteLine("Рендеринг диаграммы начат.");
+            await Task.Delay(500);
+            bool elementExists = await JSRuntime.InvokeAsync<bool>("eval", $"document.getElementById('dayChart') !== null");
+            Console.WriteLine($"Элемент canvas существует: {elementExists}");
+            if (elementExists)
+            {
+                await RenderChart();
+                isChartRendered = true;
+                Console.WriteLine("Диаграмма отрендерена.");
+            }
+            else
+            {
+                Console.WriteLine("Элемент canvas не найден.");
+            }
+        }
+        if (!isStatusChartRendered && bookingsByDay.Any())
+        {
+            Console.WriteLine("Рендеринг диаграммы статусов начат.");
+            await Task.Delay(500);
+            bool statusElementExists = await JSRuntime.InvokeAsync<bool>("eval", $"document.getElementById('statusChart') !== null");
+            Console.WriteLine($"Элемент statusCanvas существует: {statusElementExists}");
+            if (statusElementExists)
+            {
+                await RenderStatusChart();
+                isStatusChartRendered = true;
+                Console.WriteLine("Диаграмма статусов отрендерена.");
+            }
+            else
+            {
+                Console.WriteLine("Элемент statusCanvas не найден.");
+            }
+        }
+    }
 
-    //     var csvContent = new StringBuilder();
-    //     csvContent.AppendLine("ID,User ID,Date,Duration,Status,Created At"); 
+    private async Task RenderChart()
+    {
+        var days = bookingsByDay.Select(b => b.Day).ToArray();
+        var counts = bookingsByDay.Select(b => b.Count).ToArray();
+        Console.WriteLine($"Передача данных в диаграмму: {string.Join(", ", days)} - {string.Join(", ", counts)}");
+        await JSRuntime.InvokeVoidAsync("renderChart", "dayChart", days, counts);
+        Console.WriteLine("Вызов JavaScript завершен.");
+    }
 
-    //     foreach (var booking in bookings)
-    //     {
-    //         csvContent.AppendLine($"{booking.Id},{booking.UserId},{booking.Date:dd.MM.yyyy HH:mm},{booking.Duration},{booking.Status},{booking.CreatedAt:dd.MM.yyyy HH:mm}");
-    //     }
+    private async Task RenderStatusChart()
+    {
+        var statuses = new[] { "Доступно", "В ожидании", "Подтверждено" };
+        var statusCounts = new[] { availableBookings, pendingBookings, bookedBookings };
+        Console.WriteLine($"Передача данных в диаграмму статусов: {string.Join(", ", statuses)} - {string.Join(", ", statusCounts)}");
+        await JSRuntime.InvokeVoidAsync("renderChart", "statusChart", statuses, statusCounts, "pie");
+        Console.WriteLine("Вызов JavaScript для диаграммы статусов завершен.");
+    }
 
-    //     var fileName = $"bookings_export_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-    //     await FileUtil.SaveAsAsync(JSRuntime, fileName, csvContent.ToString());
-    // }
 }

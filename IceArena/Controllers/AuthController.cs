@@ -118,7 +118,7 @@ namespace IceArena.Controllers
             return Ok(response);
         }
 
-        //[Authorize(Roles = "admin")] 
+        
         [HttpPost("register-admin")] 
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest request) 
         {

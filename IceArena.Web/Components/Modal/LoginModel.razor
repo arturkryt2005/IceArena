@@ -1,11 +1,12 @@
-﻿@using Newtonsoft.Json
-@using Blazored.LocalStorage
-@using IceArena.Data.Requests
+﻿@using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthService AuthService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components;
+@using Newtonsoft.Json;
+@using IceArena.Data.Requests;
 
 <div class="modal-overlay @(IsOpen ? "show" : "")" @onclick="CloseModal" style="@(IsOpen ? "" : "display: none;")">
     <div class="modal-content" @onclick:stopPropagation>

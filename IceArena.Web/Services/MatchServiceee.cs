@@ -5,12 +5,12 @@ using IceArena.Web.Models;
 
 namespace IceArena.Web.Services
 {
-    public class MatchService : IMatchService
+    public class MatchServiceee : IMatchServiceee
     {
         private readonly HttpClient _httpClient;
         private readonly IMapper _mapper;
 
-        public MatchService(HttpClient httpClient, IMapper mapper)
+        public MatchServiceee(HttpClient httpClient, IMapper mapper)
         {
             _httpClient = httpClient;
             _mapper = mapper;
@@ -21,13 +21,10 @@ namespace IceArena.Web.Services
             try
             {
                 
-                // загрузка данных из апишки
                 var response = await _httpClient.GetFromJsonAsync<List<Match>>("Match", cancellationToken);
 
-                // проверка
                 if (response == null) return new List<MatchDto>();
 
-                // маппим
                 return _mapper.Map<List<MatchDto>>(response);
 
             }

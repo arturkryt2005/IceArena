@@ -18,6 +18,8 @@ namespace IceArena.Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
+        public DbSet<Competitions> Competitions { get; set; }
+        public DbSet<CompUser> CompUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,7 +30,8 @@ namespace IceArena.Data
             modelBuilder.Entity<Booking>().ToTable("bookings");
             modelBuilder.Entity<Subscription>().ToTable("subscriptions");
             modelBuilder.Entity<Announcement>().ToTable("announcements");
-
+            modelBuilder.Entity<Competitions>().ToTable("competition");  
+            modelBuilder.Entity<CompUser>().ToTable("comp_user");
         }
     }
 

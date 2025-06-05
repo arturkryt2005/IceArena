@@ -1,8 +1,6 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace IceArena.Data.Repositories.Implementations
 {

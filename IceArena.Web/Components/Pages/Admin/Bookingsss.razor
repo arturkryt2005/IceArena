@@ -12,12 +12,42 @@
 {
     <p>Загрузка...</p>
 }
-else if (bookings.Count == 0)
-{
-    <p>Нет активных бронирований.</p>
-}
 else
 {
+    <div class="booking-form">
+        <h4>Создать слот для бронирования</h4>
+        <EditForm Model="@newBooking" OnValidSubmit="@CreateBooking">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="date">Дата:</label>
+                <input id="date" type="date" @bind="selectedDate" class="form-control" />
+                <ValidationMessage For="@(() => selectedDate)" />
+            </div>
+
+            <div class="form-group">
+                <label for="time">Время:</label>
+                <input id="time" type="time" @bind="selectedTime" class="form-control" />
+                <ValidationMessage For="@(() => selectedTime)" />
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Длительность (минут):</label>
+                <input id="duration" type="number" @bind="newBooking.Duration" class="form-control" min="1" />
+                <ValidationMessage For="@(() => newBooking.Duration)" />
+            </div>
+
+            <div class="form-group">
+                <label for="userId">ID пользователя (опционально):</label>
+                <input id="userId" type="number" @bind="newBooking.UserId" class="form-control" />
+                <ValidationMessage For="@(() => newBooking.UserId)" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </EditForm>
+    </div>
+
     <div class="sort-options">
         <label for="sort">Сортировать по:</label>
         <select id="sort" @bind="sortOption">
@@ -37,6 +67,7 @@ else
                 <th>Статус</th>
                 <th>Создано</th>
                 <th>Действия</th>
+                <th>Удалить</th>
             </tr>
         </thead>
         <tbody>
@@ -70,6 +101,24 @@ else
                                 Отправить письмо
                             </button>
                         }
+                        else if (booking.Status == "Available" || booking.Status == "Booked")
+                        {
+                            <button class="btn btn-warning" @onclick="() => CancelBooking(booking.Id)">
+                                Отменить
+                            </button>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                    <td>
+                        @if (booking.Status == "Cancelled")
+                        {
+                            <button class="btn btn-danger" @onclick="() => DeleteBooking(booking.Id)">
+                                Удалить
+                            </button>
+                        }
                         else
                         {
                             <span>-</span>
@@ -79,15 +128,30 @@ else
             }
         </tbody>
     </table>
+
+    @if (showModal)
+    {
+        <div class="modal-overlay" @onclick="CloseModal">
+            <div class="modal-content" @onclick:stopPropagation>
+                <h5>@modalMessage</h5>
+                <button class="btn btn-primary" @onclick="CloseModal">Закрыть</button>
+            </div>
+        </div>
+    }
 }
 
-<p>@Message</p>
+<p class="@(Message.Contains("Ошибка") ? "message-error" : "message-success")">@Message</p>
 
 @code {
     private string Message = "";
     private List<Booking>? bookings;
     private List<User>? users;
     private string sortOption = "dateAsc";
+    private Booking newBooking = new Booking { Status = "Available", CreatedAt = DateTime.UtcNow };
+    private DateTime selectedDate = DateTime.UtcNow.Date;
+    private TimeOnly? selectedTime = TimeOnly.FromDateTime(DateTime.UtcNow);
+    private bool showModal = false;
+    private string modalMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -103,11 +167,76 @@ else
         _ => bookings?.ToList() ?? new List<Booking>()
     };
 
+    private async Task CreateBooking()
+    {
+        if (!selectedTime.HasValue)
+        {
+            ShowModal("Пожалуйста, укажите время.");
+            return;
+        }
+
+        DateTime localDateTime = selectedDate.Date.Add(selectedTime.Value.ToTimeSpan());
+        newBooking.Date = DateTime.SpecifyKind(localDateTime, DateTimeKind.Utc);
+
+        if (newBooking.Date < DateTime.UtcNow)
+        {
+            ShowModal("Нельзя создать слот на прошедшее время.");
+            return;
+        }
+
+        if (newBooking.Date == DateTime.MinValue || newBooking.Duration <= 0)
+        {
+            ShowModal("Пожалуйста, укажите корректные дату и длительность.");
+            return;
+        }
+
+        DateTime newStart = newBooking.Date;
+        DateTime newEnd = newBooking.Date.AddMinutes(newBooking.Duration);
+        foreach (var existingBooking in bookings)
+        {
+            DateTime existingStart = existingBooking.Date;
+            DateTime existingEnd = existingBooking.Date.AddMinutes(existingBooking.Duration);
+            if (newStart < existingEnd && newEnd > existingStart)
+            {
+                ShowModal("Этот слот пересекается с уже существующим бронированием.");
+                return;
+            }
+        }
+
+        newBooking.StartTime = newBooking.Date.TimeOfDay;
+        newBooking.EndTime = newBooking.StartTime.Add(TimeSpan.FromMinutes(newBooking.Duration));
+
+        if (newBooking.CreatedAt == DateTime.MinValue)
+            newBooking.CreatedAt = DateTime.UtcNow;
+        if (string.IsNullOrEmpty(newBooking.Status))
+            newBooking.Status = "Available";
+
+        var response = await Http.PostAsJsonAsync("api/Booking", newBooking);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var createdBooking = await response.Content.ReadFromJsonAsync<Booking>();
+            if (createdBooking != null)
+            {
+                bookings?.Add(createdBooking);
+                Message = "Бронирование успешно создано!";
+                newBooking = new Booking { Status = "Available", CreatedAt = DateTime.UtcNow };
+                selectedDate = DateTime.UtcNow.Date;
+                selectedTime = TimeOnly.FromDateTime(DateTime.UtcNow);
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            Message = $"Ошибка при создании: {response.ReasonPhrase}";
+        }
+    }
+
     private async Task AcceptBooking(int bookingId, string? userEmail)
     {
         if (string.IsNullOrEmpty(userEmail))
         {
-            Message = "Ошибка: Email пользователя не указан";
+            Message = "Ошибка: Email не найден.";
             return;
         }
 
@@ -130,4 +259,63 @@ else
             Message = $"Ошибка при отправке письма: {result.ErrorMessage}";
         }
     }
+
+    private async Task CancelBooking(int bookingId)
+    {
+        var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
+        if (booking == null)
+        {
+            Message = "Бронирование не найдено.";
+            return;
+        }
+
+        booking.Status = "Cancelled";
+        var response = await Http.PutAsJsonAsync($"api/Booking/{bookingId}", booking);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Message = "Бронирование успешно отменено.";
+            StateHasChanged();
+        }
+        else
+        {
+            Message = $"Ошибка при отмене: {response.ReasonPhrase}";
+        }
+    }
+
+    private async Task DeleteBooking(int bookingId)
+    {
+        var response = await Http.DeleteAsync($"api/Booking/{bookingId}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var bookingToRemove = bookings.FirstOrDefault(b => b.Id == bookingId);
+            if (bookingToRemove != null)
+            {
+                bookings.Remove(bookingToRemove);
+                Message = "Бронирование успешно удалено.";
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            Message = $"Ошибка при удалении: {response.ReasonPhrase}";
+        }
+    }
+
+    private void ShowModal(string message)
+    {
+        modalMessage = message;
+        showModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        modalMessage = "";
+        StateHasChanged();
+    }
 }
+
+   

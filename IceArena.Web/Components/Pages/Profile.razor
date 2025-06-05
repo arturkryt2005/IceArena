@@ -37,7 +37,7 @@ else
     </div>
 
     <div class="booking-history">
-        <h4>История бронирований</h4>
+        <h4 style="color:white">История бронирований</h4>
 
         @if (bookings == null)
         {
@@ -49,23 +49,43 @@ else
         }
         else
         {
-            <div class="history-list">
-                @foreach (var booking in bookings.OrderByDescending(b => b.Date).ThenBy(b => b.StartTime))
-                {
-                    <div class="booking-item">
-                        <span class="booking-date">📅 @booking.Date.ToShortDateString()</span>
-                        <span class="booking-time">⏰ @booking.StartTime.ToString("hh\\:mm") - @booking.EndTime.ToString("hh\\:mm")</span>
-                        <span class="booking-status @(GetStatusClass(booking.Status))">
-                            🟢 @booking.Status
-                        </span>
-                    </div>
-                }
-            </div>
+            @if (upcomingBookings.Count > 0)
+            {
+                <h5 style="color: var(--gold); margin-top: 2rem;">Актуальные брони</h5>
+                <div class="history-list">
+                    @foreach (var booking in upcomingBookings.OrderByDescending(b => b.Date).ThenBy(b => b.StartTime))
+                    {
+                        <div class="booking-item">
+                            <span class="booking-date">@booking.Date.ToShortDateString()</span>
+                            <span class="booking-time">@booking.StartTime.ToString("hh\\:mm") - @booking.EndTime.ToString("hh\\:mm")</span>
+                            <span class="booking-status @(GetStatusClass(booking.Status))">
+                                🟢 @booking.Status
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (pastBookings.Count > 0)
+            {
+                <h5 style="color: var(--text-secondary); margin-top: 2rem;">Прошедшие брони</h5>
+                <div class="history-list">
+                    @foreach (var booking in pastBookings.OrderByDescending(b => b.Date).ThenBy(b => b.StartTime))
+                    {
+                        <div class="booking-item">
+                            <span class="booking-date">@booking.Date.ToShortDateString()</span>
+                            <span class="booking-time">@booking.StartTime.ToString("hh\\:mm") - @booking.EndTime.ToString("hh\\:mm")</span>
+                            <span class="booking-status @(GetStatusClass(booking.Status))">
+                                 @booking.Status
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
         }
     </div>
 }
 
-<!-- Модалка редактирования -->
 @if (showEditModal)
 {
     <div class="modal-overlay" @onclick="CloseEditModal">
@@ -115,6 +135,9 @@ else
     private List<IceArena.Data.Models.Booking> bookings = new();
     private bool showEditModal = false;
     private User editedUser = new();
+    private List<IceArena.Data.Models.Booking> upcomingBookings = new();
+    private List<IceArena.Data.Models.Booking> pastBookings = new();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -134,7 +157,6 @@ else
     {
         try
         {
-            // Загружаем данные из LocalStorage
             var token = await LocalStorage.GetItemAsStringAsync("authToken");
             username = await LocalStorage.GetItemAsStringAsync("username") ?? "Неизвестно";
             phone = await LocalStorage.GetItemAsStringAsync("phone") ?? "Неизвестно";
@@ -147,8 +169,16 @@ else
                 userId = id;
                 isAuthenticated = !string.IsNullOrEmpty(token);
 
-                // Загружаем бронирования
                 bookings = await Http.GetFromJsonAsync<List<IceArena.Data.Models.Booking>>($"api/Booking/user/{userId}") ?? new();
+                var now = DateTime.Now;
+                upcomingBookings = bookings.Where(b => b.Date.Date >= now.Date).ToList();
+                pastBookings = bookings.Where(b => b.Date.Date < now.Date).ToList();
+
+                Console.WriteLine($"Загружено {bookings.Count} бронирований:");
+                foreach (var booking in bookings)
+                {
+                    Console.WriteLine($"ID: {booking.Id}, Статус: {booking.Status}");
+                }
             }
 
             isInitialized = true;
@@ -170,12 +200,12 @@ else
         {
             username = editedUser.Username;
             userEmail = editedUser.Email;
-            role = editedUser.Role; 
+            role = editedUser.Role;
             phone = editedUser.PhoneNumber;
 
             await LocalStorage.SetItemAsStringAsync("username", username);
             await LocalStorage.SetItemAsStringAsync("email", userEmail);
-            await LocalStorage.SetItemAsStringAsync("role", role); 
+            await LocalStorage.SetItemAsStringAsync("role", role);
             await LocalStorage.SetItemAsStringAsync("phone", phone);
 
             showEditModal = false;
@@ -211,9 +241,10 @@ else
     {
         return status switch
         {
-            "Pending" => "status-pending",
-            "Booked" => "status-booked",
-            "Cancelled" => "status-cancelled",
+            "Pending" => "pending",
+            "Booked" => "booked",
+            "Confirmed" => "confirmed",
+            "Cancelled" => "cancelled",
             _ => ""
         };
     }

@@ -34,6 +34,9 @@ builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 
+builder.Services.AddScoped<ICompetitionRepository, CompetitionRepository>();
+builder.Services.AddScoped<ICompetitionService, CompetitionService>();
+
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddEndpointsApiExplorer();

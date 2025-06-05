@@ -2,7 +2,7 @@
 
 namespace IceArena.Web.Interfaces
 {
-    public interface IMatchService
+    public interface IMatchServiceee
     {
         Task<List<MatchDto>> GetMatchesAsync(CancellationToken cancellationToken = default);
     }

@@ -1,11 +1,6 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceArena.Data.Repositories.Implementations
 {
@@ -32,7 +27,7 @@ namespace IceArena.Data.Repositories.Implementations
         public async Task<IEnumerable<Booking>> GetUserBookingsAsync(int userId)
         {
             return await _dbContext.Bookings
-                .Where(b => b.UserId == userId && b.Status == "Pending")
+                .Where(b => b.UserId == userId && b.Status == "Pending" || b.Status == "Booked" || b.Status == "Cancelled")
                 .ToListAsync();
         }
 

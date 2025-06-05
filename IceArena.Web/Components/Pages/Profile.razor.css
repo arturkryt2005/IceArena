@@ -1,5 +1,4 @@
-﻿/* === Базовые стили === */
-:root {
+﻿:root {
     --primary: #1E90FF;
     --primary-dark: #0066CC;
     --gold: #FFD700;
@@ -38,7 +37,6 @@ a {
         text-decoration: none;
     }
 
-/* === Анимации === */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -75,7 +73,6 @@ a {
     }
 }
 
-/* === Заголовок профиля === */
 .profile-header {
     text-align: center;
     font-size: 3rem;
@@ -102,7 +99,6 @@ a {
         border-radius: 3px;
     }
 
-/* === Неавторизованный доступ === */
 .unauthorized-card {
     background: rgba(30, 30, 30, 0.95);
     border: 1px solid rgba(255, 76, 76, 0.3);
@@ -136,7 +132,6 @@ a {
         font-weight: 600;
     }
 
-/* === Кнопки === */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -216,7 +211,6 @@ a {
         box-shadow: 0 6px 20px rgba(0, 204, 102, 0.4);
     }
 
-/* === Карточка профиля === */
 .profile-card {
     background: var(--dark-card);
     border-radius: var(--border-radius);
@@ -345,7 +339,6 @@ a {
         transform: translateY(-3px) scale(1.02);
     }
 
-/* === История бронирований === */
 .booking-history {
     background: var(--dark-card);
     border-radius: var(--border-radius);
@@ -495,7 +488,6 @@ h4{
         margin-right: 0.5rem;
     }
 
-    /* Стили для статусов */
     .booking-status.confirmed {
         background-color: rgba(0, 204, 102, 0.15);
         color: #00CC66;
@@ -526,7 +518,6 @@ h4{
             background-color: var(--gold);
         }
 
-/* === Модальное окно === */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -634,7 +625,6 @@ h4{
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* === Адаптивность === */
 @media (max-width: 768px) {
     .profile-header {
         font-size: 2.2rem;
@@ -677,7 +667,6 @@ h4{
     }
 }
 
-/* === Состояние загрузки === */
 .loading-text {
     text-align: center;
     color: var(--text-secondary);
@@ -705,3 +694,22 @@ h4{
         content: '...';
     }
 }
+.booking-status.pending {
+    border-color: var(--gold);
+    background-color: rgba(255, 215, 0, 0.15);
+    color: var(--gold);
+}
+
+.booking-status.confirmed,
+.booking-status.booked {
+    border-color: var(--success);
+    background-color: rgba(0, 204, 102, 0.15);
+    color: var(--success);
+}
+
+.booking-status.cancelled {
+    border-color: var(--danger);
+    background-color: rgba(255, 76, 76, 0.15);
+    color: var(--danger);
+}
+
