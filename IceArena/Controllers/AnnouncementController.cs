@@ -45,7 +45,7 @@ namespace IceArena.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAnnouncementAsync(int id)
         {
             await _announcementService.DeleteAnnouncementAsync(id);
