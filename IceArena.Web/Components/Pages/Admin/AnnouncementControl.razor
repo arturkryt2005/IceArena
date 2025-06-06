@@ -1,13 +1,16 @@
 ﻿@page "/announcementcontrol"
 @using IceArena.Data.Models
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @rendermode InteractiveServer
 
-<h3>Announcement Control</h3>
+<PageTitle>Объявления</PageTitle>
 
 @if (announcements == null)
 {
@@ -17,28 +20,32 @@
 }
 else
 {
-    <div class="mb-3">
-        <button class="btn btn-primary" @onclick="ShowCreateModal">
-            <i class="fas fa-plus"></i> Create New Announcement
-        </button>
-    </div>
+    @if(role == "admin")
+    {
+        <div class="mb-3">
+            <button class="btn btn-primary" @onclick="ShowCreateModal">
+                <i class="fas fa-plus"></i> Добавить новое объявление
+            </button>
+        </div>
+    }
 
     <div class="table-responsive">
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
                     <th>Title</th>
                     <th>Image</th>
                     <th>Created At</th>
-                    <th>Actions</th>
+                    @if (role == "admin")
+                    {
+                        <th>Actions</th>
+                    }
                 </tr>
             </thead>
             <tbody>
                 @foreach (var announcement in announcements)
                 {
                     <tr>
-                        <td>@announcement.Id</td>
                         <td>@announcement.Title</td>
                         <td>
                             @if (announcement.ImageData != null)
@@ -54,14 +61,17 @@ else
                             }
                         </td>
                         <td>@announcement.CreatedAt.ToString("g")</td>
-                        <td>
-                            <button class="btn btn-sm btn-info me-2" @onclick="() => ShowEditModal(announcement)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAnnouncement(announcement.Id)">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
+                        @if (role == "admin")
+                        {
+                            <td>
+                                <button class="btn btn-sm btn-info me-2" @onclick="() => ShowEditModal(announcement)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteAnnouncement(announcement.Id)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -160,11 +170,17 @@ else
     private string? fileName;
     private string? statusMessage;
     private bool isProcessing = false;
+    private string role = string.Empty;
+
+    private AuthenticationState? authState;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            role = authState.User.FindFirst(ClaimTypes.Role)?.Value;
+            
             await LoadAnnouncements();
         }
     }
