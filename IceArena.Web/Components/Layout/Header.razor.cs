@@ -11,6 +11,7 @@ namespace IceArena.Web.Components.Layout
         private bool isLoginOpen = false;
         private bool isInitialized = false;
         private bool showLogoutConfirm = false;
+        private string name = string.Empty;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -19,6 +20,8 @@ namespace IceArena.Web.Components.Layout
                 AuthStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
 
                 var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+                name = authState.User.FindFirst(ClaimTypes.Name)?.Value;
+                
                 UpdateUserState(authState.User);
 
                 isInitialized = true;

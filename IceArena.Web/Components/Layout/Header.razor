@@ -5,6 +5,7 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService LocalStorage
 @using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <header>
     <nav>
@@ -30,6 +31,7 @@
         @if (isAuthenticated)
         {
             <button class="vhodavtor" @onclick="ConfirmLogout">Выйти</button>
+            <label>@name</label>
         }
         else
         {
@@ -42,5 +44,4 @@
 </header>
 
 @code {
-    
 }
