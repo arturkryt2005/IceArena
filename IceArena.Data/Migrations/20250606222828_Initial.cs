@@ -20,26 +20,13 @@ namespace IceArena.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     title = table.Column<string>(type: "text", nullable: true),
                     content = table.Column<string>(type: "text", nullable: true),
-                    mongo_image_id = table.Column<string>(type: "text", nullable: true),
+                    image_data = table.Column<byte[]>(type: "bytea", nullable: false),
+                    image_content_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_announcements", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "comp_user",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    id_user = table.Column<int>(type: "integer", nullable: false),
-                    id_comp = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_comp_user", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -192,10 +179,46 @@ namespace IceArena.Data.Migrations
                         principalColumn: "id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "comp_user",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_user = table.Column<int>(type: "integer", nullable: false),
+                    id_comp = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_comp_user", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_comp_user_competition_id_comp",
+                        column: x => x.id_comp,
+                        principalTable: "competition",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_comp_user_users_id_user",
+                        column: x => x.id_user,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_bookings_user_id",
                 table: "bookings",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_comp_user_id_comp",
+                table: "comp_user",
+                column: "id_comp");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_comp_user_id_user",
+                table: "comp_user",
+                column: "id_user");
 
             migrationBuilder.CreateIndex(
                 name: "IX_matches_team1_id",
@@ -231,9 +254,6 @@ namespace IceArena.Data.Migrations
                 name: "comp_user");
 
             migrationBuilder.DropTable(
-                name: "competition");
-
-            migrationBuilder.DropTable(
                 name: "matches");
 
             migrationBuilder.DropTable(
@@ -241,6 +261,9 @@ namespace IceArena.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "subscriptions");
+
+            migrationBuilder.DropTable(
+                name: "competition");
 
             migrationBuilder.DropTable(
                 name: "users");

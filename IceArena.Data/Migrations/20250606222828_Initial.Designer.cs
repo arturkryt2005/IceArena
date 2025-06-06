@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IceArena.Data.Migrations
 {
     [DbContext(typeof(IceArenaDbContext))]
-    [Migration("20250606194656_AddRelations")]
-    partial class AddRelations
+    [Migration("20250606222828_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,9 +42,16 @@ namespace IceArena.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("text")
-                        .HasColumnName("mongo_image_id");
+                    b.Property<string>("ImageContentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("image_content_type");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("image_data");
 
                     b.Property<string>("Title")
                         .HasColumnType("text")
