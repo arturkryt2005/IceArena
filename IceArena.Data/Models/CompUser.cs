@@ -10,9 +10,13 @@ namespace IceArena.Data.Models
         public int Id { get; set; }
 
         [Column("id_user")]
-        public int IdUser { get; set; }
+        public int UserId { get; set; }
+
+        public virtual User User { get; set; }
 
         [Column("id_comp")]
-        public int IdComp { get; set; }
+        public int CompId { get; set; }
+
+        public virtual Competitions Comp { get; set; }
     }
 }

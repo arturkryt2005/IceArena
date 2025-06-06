@@ -49,7 +49,6 @@ builder.Services.AddHttpClient<IMatchServiceee, MatchServiceee>(client =>
     client.BaseAddress = new Uri("https://localhost:7118/api/");
 });
 
-
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthService>();
 

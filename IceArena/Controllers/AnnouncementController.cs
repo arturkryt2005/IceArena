@@ -37,7 +37,7 @@ namespace IceArena.Controllers
             return CreatedAtAction(nameof(GetAnnouncement), new {id = announcement.Id }, announcement);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAnnouncement(int id, [FromBody] Announcement announcement)
         {
             if (id != announcement.Id) return BadRequest("Id mismatch");

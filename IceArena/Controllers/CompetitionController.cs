@@ -35,7 +35,7 @@ namespace IceArena.Controllers
         [Authorize]
         public async Task<IActionResult> RegisterUser([FromBody] CompUser compUser)
         {
-            await _competitionService.RegisterUserAsync(compUser.IdUser, compUser.IdComp);
+            await _competitionService.RegisterUserAsync(compUser.UserId, compUser.CompId);
             return Ok();
         }
     }

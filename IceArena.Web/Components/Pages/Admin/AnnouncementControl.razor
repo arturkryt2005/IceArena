@@ -1,7 +1,259 @@
 ﻿@page "/announcementcontrol"
+@using IceArena.Data.Models
+@using System.ComponentModel.DataAnnotations
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
-<h3>AnnouncementControl</h3>
+<h3 class="mb-4">Управление объявлениями</h3>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+    </div>
+}
+else if (errorMessage != null)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+        <button class="btn btn-sm btn-outline-danger float-end" @onclick="ClearError">Закрыть</button>
+    </div>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="ShowCreateModal">
+            <i class="bi bi-plus-circle"></i> Создать новое объявление
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Заголовок</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var announcement in announcements)
+                {
+                    <tr>
+                        <td>@announcement.Id</td>
+                        <td>@announcement.Title</td>
+                        <td>@announcement.CreatedAt.ToLocalTime().ToString("g")</td>
+                        <td>
+                            <button class="btn btn-sm btn-info me-2" @onclick="() => ShowEditModal(announcement)">
+                                <i class="bi bi-pencil"></i> Редактировать
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAnnouncement(announcement.Id)">
+                                <i class="bi bi-trash"></i> Удалить
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- Модальное окно для создания/редактирования -->
+@if (showModal)
+{
+    <div class="modal show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5)">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(currentAnnouncement.Id == 0 ? "Создание" : "Редактирование") объявления</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@currentAnnouncement" OnValidSubmit="@HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Заголовок</label>
+                            <InputText id="title" @bind-Value="currentAnnouncement.Title" class="form-control" />
+                            <ValidationMessage For="@(() => currentAnnouncement.Title)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Содержание</label>
+                            <InputTextArea id="content" @bind-Value="currentAnnouncement.Content" class="form-control" rows="5" />
+                            <ValidationMessage For="@(() => currentAnnouncement.Content)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imageUrl" class="form-label">Ссылка на изображение</label>
+                            <InputText id="imageUrl" @bind-Value="currentAnnouncement.ImageUrl" class="form-control" />
+                            <ValidationMessage For="@(() => currentAnnouncement.ImageUrl)" />
+                            @if (!string.IsNullOrEmpty(currentAnnouncement.ImageUrl))
+                            {
+                                <div class="mt-2">
+                                    <img src="@currentAnnouncement.ImageUrl" class="img-thumbnail" style="max-height: 200px;" alt="Предпросмотр" />
+                                </div>
+                            }
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Сохранить
+                            </button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
+    private List<Announcement> announcements = new();
+    private bool showModal = false;
+    private Announcement currentAnnouncement = new();
+    private bool isLoading = true;
+    private string? errorMessage;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnnouncements();
+    }
+
+    private async Task LoadAnnouncements()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var response = await Http.GetAsync("api/announcement");
+
+            if (response.IsSuccessStatusCode)
+            {
+                announcements = await response.Content.ReadFromJsonAsync<List<Announcement>>() ?? new();
+            }
+            else
+            {
+                errorMessage = $"Ошибка при загрузке: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ShowCreateModal()
+    {
+        currentAnnouncement = new Announcement();
+        showModal = true;
+    }
+
+    private void ShowEditModal(Announcement announcement)
+    {
+        currentAnnouncement = new Announcement
+            {
+                Id = announcement.Id,
+                Title = announcement.Title,
+                Content = announcement.Content,
+                ImageUrl = announcement.ImageUrl,
+                CreatedAt = announcement.CreatedAt
+            };
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            HttpResponseMessage response;
+
+            if (currentAnnouncement.Id == 0)
+            {
+                response = await Http.PostAsJsonAsync("api/announcement", currentAnnouncement);
+            }
+            else
+            {
+                response = await Http.PutAsJsonAsync($"api/announcement/{currentAnnouncement.Id}", currentAnnouncement);
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = $"Ошибка сохранения: {response.StatusCode}";
+                return;
+            }
+
+            showModal = false;
+            await LoadAnnouncements();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteAnnouncement(int id)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Вы уверены, что хотите удалить это объявление?");
+        if (!confirmed) return;
+
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            var response = await Http.DeleteAsync($"api/announcements/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = $"Ошибка удаления: {response.StatusCode}";
+                return;
+            }
+
+            await LoadAnnouncements();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+    }
 }

@@ -21,15 +21,15 @@ namespace IceArena.Data.Repositories.Implementations
         public async Task<bool> IsUserRegisteredAsync(int userId, int competitionId)
         {
             return await _context.CompUsers
-                .AnyAsync(cu => cu.IdUser == userId && cu.IdComp == competitionId);
+                .AnyAsync(cu => cu.UserId == userId && cu.CompId == competitionId);
         }
 
         public async Task RegisterUserAsync(int userId, int competitionId)
         {
             var compUser = new CompUser
             {
-                IdUser = userId,
-                IdComp = competitionId
+                UserId = userId,
+                CompId = competitionId
             };
 
             await _context.CompUsers.AddAsync(compUser);

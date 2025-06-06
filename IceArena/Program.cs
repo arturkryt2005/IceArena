@@ -39,6 +39,7 @@ builder.Services.AddScoped<ICompetitionService, CompetitionService>();
 
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IMatchService, MatchService>();
