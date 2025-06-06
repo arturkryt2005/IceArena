@@ -1,183 +1,166 @@
 ﻿@page "/team"
+@using HtmlAgilityPack
+@inject HttpClient Http
 
 <h3>Команда</h3>
 
-<div class="team-container">
-    <div class="coach-card">
-        <h4>Тренер</h4>
-        <img src="../images/coach.png"/>
-        <p><strong>Имя:</strong> Иван Иванов</p>
-        <p><strong>Год рождения:</strong> 1975</p>
-        <p><strong>Описание:</strong> Опытный тренер с более чем 20-летним стажем работы в профессиональном хоккее.</p>
-    </div>
-
-    <div class="players-container">
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Алексей Петров</p>
-            <p><strong>Год рождения:</strong> 1990</p>
-            <p><strong>Описание:</strong> Быстрый и техничный нападающий с отличным голевым чутьём.</p>
+@if (teamMembers == null)
+{
+    <p>Загрузка данных...</p>
+}
+else
+{
+    <div class="team-container">
+        <div class="coach-card">
+            <h4>Тренер</h4>
+            @foreach (var coach in teamMembers.Where(m => m.Role == "Тренер"))
+            {
+                <img src="@coach.PhotoUrl" alt="@coach.Name" onerror="this.src='../images/coach.png'" />
+                <p><strong>Имя:</strong> @coach.Name</p>
+                <p><strong>Год рождения:</strong> @coach.BirthYear</p>
+                <p><strong>Описание:</strong> @coach.Description</p>
+            }
         </div>
 
-        <div class="player-card">
-            <h4>Защитник</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Дмитрий Сидоров</p>
-            <p><strong>Год рождения:</strong> 1988</p>
-            <p><strong>Описание:</strong> Надёжный защитник с сильным броском и хорошим видением площадки.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Вратарь</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Сергей Васильев</p>
-            <p><strong>Год рождения:</strong> 1992</p>
-            <p><strong>Описание:</strong> Хладнокровный вратарь с отличной реакцией и умением читать игру.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Андрей Смирнов</p>
-            <p><strong>Год рождения:</strong> 1991</p>
-            <p><strong>Описание:</strong> Мощный нападающий с сильным броском и физической подготовкой.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Игорь Козлов</p>
-            <p><strong>Год рождения:</strong> 1993</p>
-            <p><strong>Описание:</strong> Универсальный нападающий с отличной техникой и скоростью.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Защитник</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Владимир Морозов</p>
-            <p><strong>Год рождения:</strong> 1989</p>
-            <p><strong>Описание:</strong> Сильный защитник с отличной физической подготовкой.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Вратарь</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Павел Новиков</p>
-            <p><strong>Год рождения:</strong> 1994</p>
-            <p><strong>Описание:</strong> Молодой и перспективный вратарь с отличной реакцией.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Артём Федоров</p>
-            <p><strong>Год рождения:</strong> 1990</p>
-            <p><strong>Описание:</strong> Нападающий с отличным голевым чутьём и сильным броском.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Защитник</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Александр Иванов</p>
-            <p><strong>Год рождения:</strong> 1987</p>
-            <p><strong>Описание:</strong> Опытный защитник с хорошим видением площадки.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Евгений Кузнецов</p>
-            <p><strong>Год рождения:</strong> 1992</p>
-            <p><strong>Описание:</strong> Быстрый и техничный нападающий.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Защитник</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Николай Соколов</p>
-            <p><strong>Год рождения:</strong> 1991</p>
-            <p><strong>Описание:</strong> Надёжный защитник с сильным броском.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Вратарь</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Денис Петров</p>
-            <p><strong>Год рождения:</strong> 1993</p>
-            <p><strong>Описание:</strong> Вратарь с отличной реакцией и хладнокровием.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Михаил Волков</p>
-            <p><strong>Год рождения:</strong> 1989</p>
-            <p><strong>Описание:</strong> Мощный нападающий с сильным броском.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Защитник</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Сергей Кузнецов</p>
-            <p><strong>Год рождения:</strong> 1990</p>
-            <p><strong>Описание:</strong> Защитник с хорошим видением площадки.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Виктор Смирнов</p>
-            <p><strong>Год рождения:</strong> 1991</p>
-            <p><strong>Описание:</strong> Нападающий с отличной техникой.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Защитник</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Алексей Морозов</p>
-            <p><strong>Год рождения:</strong> 1988</p>
-            <p><strong>Описание:</strong> Сильный защитник с хорошей физической подготовкой.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Вратарь</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Игорь Васильев</p>
-            <p><strong>Год рождения:</strong> 1992</p>
-            <p><strong>Описание:</strong> Вратарь с отличной реакцией.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Дмитрий Козлов</p>
-            <p><strong>Год рождения:</strong> 1993</p>
-            <p><strong>Описание:</strong> Нападающий с хорошим голевым чутьём.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Защитник</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Андрей Новиков</p>
-            <p><strong>Год рождения:</strong> 1990</p>
-            <p><strong>Описание:</strong> Защитник с сильным броском.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Нападающий</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Павел Федоров</p>
-            <p><strong>Год рождения:</strong> 1991</p>
-            <p><strong>Описание:</strong> Нападающий с отличной техникой.</p>
-        </div>
-
-        <div class="player-card">
-            <h4>Защитник</h4>
-            <img src="../images/hockey_player.png" />
-            <p><strong>Имя:</strong> Владимир Соколов</p>
-            <p><strong>Год рождения:</strong> 1989</p>
-            <p><strong>Описание:</strong> Надёжный защитник.</p>
+        <div class="players-container">
+            @foreach (var player in teamMembers.Where(m => m.Role != "Тренер"))
+            {
+                <div class="player-card">
+                    <h4>@player.Position</h4>
+                    <img src="@player.PhotoUrl" alt="@player.Name" onerror="this.src='../images/hockey_player.png'" />
+                    <p><strong>Имя:</strong> @player.Name</p>
+                    <p><strong>Год рождения:</strong> @player.BirthYear</p>
+                    <p><strong>Описание:</strong> @player.Description</p>
+                </div>
+            }
         </div>
     </div>
-</div>
+}
+
+@code {
+    private List<TeamMember> teamMembers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Парсим данные с сайта
+        var htmlContent = await Http.GetStringAsync("https://fhrt.ru/team/roster/328/16#roster");
+        teamMembers = ParseTeamData(htmlContent);
+    }
+
+    private List<TeamMember> ParseTeamData(string htmlContent)
+    {
+        var members = new List<TeamMember>();
+        var htmlDocument = new HtmlDocument();
+        htmlDocument.LoadHtml(htmlContent);
+
+        // Находим основную таблицу
+        var mainTable = htmlDocument.DocumentNode.SelectSingleNode("//table[contains(@class, 'table-striped')]");
+        if (mainTable == null)
+        {
+            Console.WriteLine("Основная таблица не найдена!");
+            return members;
+        }
+
+        // Парсим все строки таблицы
+        var rows = mainTable.SelectNodes(".//tr");
+        if (rows == null) return members;
+
+        bool isCoachesSection = false;
+        bool isPlayersSection = false;
+
+        foreach (var row in rows)
+        {
+            // Определяем текущую секцию
+            var titleCell = row.SelectSingleNode(".//td[contains(@class, 'roster__title-row')]");
+            if (titleCell != null)
+            {
+                if (titleCell.InnerText.Contains("Тренеры"))
+                {
+                    isCoachesSection = true;
+                    isPlayersSection = false;
+                    continue;
+                }
+                else if (titleCell.InnerText.Contains("Игроки"))
+                {
+                    isCoachesSection = false;
+                    isPlayersSection = true;
+                    continue;
+                }
+            }
+
+            // Пропускаем заголовки столбцов
+            if (row.SelectSingleNode(".//th") != null) continue;
+
+            // Обрабатываем данные
+            var cells = row.SelectNodes(".//td");
+            if (cells == null) continue;
+
+            // Извлекаем фото (общее для тренеров и игроков)
+            var photoNode = cells[0].SelectSingleNode(".//img[contains(@class, 'roster__photo')]");
+            string photoUrl = photoNode?.GetAttributeValue("src", "") ?? "";
+
+            if (isCoachesSection && cells.Count >= 3)
+            {
+                // Парсим тренера
+                var nameLink = cells[0].SelectSingleNode(".//a[.//span[contains(@class, 'roster__')]]");
+                if (nameLink != null)
+                {
+                    var surname = nameLink.SelectSingleNode(".//span[contains(@class, 'roster__surname')]")?.InnerText.Trim() ?? "";
+                    var name = nameLink.SelectSingleNode(".//span[contains(@class, 'roster__name')]")?.InnerText.Trim() ?? "";
+                    var patronymic = nameLink.SelectSingleNode(".//span[contains(@class, 'roster__patronymic')]")?.InnerText.Trim() ?? "";
+
+                    members.Add(new TeamMember
+                        {
+                            Role = "Тренер",
+                            Name = $"{surname} {name} {patronymic}".Trim(),
+                            BirthYear = ExtractYearFromDate(cells[1].InnerText.Trim()),
+                            Description = $"Тренер, место рождения: {cells[2].InnerText.Trim()}",
+                            PhotoUrl = photoUrl
+                        });
+                }
+            }
+            else if (isPlayersSection && cells.Count >= 4)
+            {
+                // Парсим игрока
+                var nameLink = cells[0].SelectSingleNode(".//a[.//span[contains(@class, 'roster__')]]");
+                if (nameLink != null)
+                {
+                    var surname = nameLink.SelectSingleNode(".//span[contains(@class, 'roster__surname')]")?.InnerText.Trim() ?? "";
+                    var name = nameLink.SelectSingleNode(".//span[contains(@class, 'roster__name')]")?.InnerText.Trim() ?? "";
+                    var patronymic = nameLink.SelectSingleNode(".//span[contains(@class, 'roster__patronymic')]")?.InnerText.Trim() ?? "";
+
+                    members.Add(new TeamMember
+                        {
+                            Role = "Игрок",
+                            Position = cells[2].InnerText.Trim(),
+                            Name = $"{surname} {name} {patronymic}".Trim(),
+                            BirthYear = ExtractYearFromDate(cells[1].InnerText.Trim()),
+                            Description = $"{cells[2].InnerText.Trim()}",
+                            PhotoUrl = photoUrl
+                        });
+                }
+            }
+        }
+
+        return members;
+    }
+
+    private string ExtractYearFromDate(string dateString)
+    {
+        if (DateTime.TryParse(dateString, out var date))
+        {
+            return date.Year.ToString();
+        }
+        return dateString;
+    }
+
+    public class TeamMember
+    {
+        public string Role { get; set; }
+        public string Position { get; set; }
+        public string Name { get; set; }
+        public string BirthYear { get; set; }
+        public string Description { get; set; }
+        public string PhotoUrl { get; set; }
+    }
+}
