@@ -4,30 +4,22 @@
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
+
 @rendermode InteractiveServer
 
-<h3 class="mb-4">Управление объявлениями</h3>
+<h3>Announcement Control</h3>
 
-@if (isLoading)
+@if (announcements == null)
 {
-    <div class="text-center">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Загрузка...</span>
-        </div>
-    </div>
-}
-else if (errorMessage != null)
-{
-    <div class="alert alert-danger">
-        @errorMessage
-        <button class="btn btn-sm btn-outline-danger float-end" @onclick="ClearError">Закрыть</button>
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
     </div>
 }
 else
 {
     <div class="mb-3">
         <button class="btn btn-primary" @onclick="ShowCreateModal">
-            <i class="bi bi-plus-circle"></i> Создать новое объявление
+            <i class="fas fa-plus"></i> Create New Announcement
         </button>
     </div>
 
@@ -36,9 +28,10 @@ else
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Заголовок</th>
-                    <th>Дата создания</th>
-                    <th>Действия</th>
+                    <th>Title</th>
+                    <th>Image</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,13 +40,26 @@ else
                     <tr>
                         <td>@announcement.Id</td>
                         <td>@announcement.Title</td>
-                        <td>@announcement.CreatedAt.ToLocalTime().ToString("g")</td>
+                        <td>
+                            @if (announcement.ImageData != null)
+                            {
+                                <img src="@GetImageSrc(announcement)"
+                                class="img-thumbnail"
+                                style="max-height: 60px; cursor: pointer;"
+                                @onclick="() => ShowImagePreview(announcement)" />
+                            }
+                            else
+                            {
+                                <span class="text-muted">No image</span>
+                            }
+                        </td>
+                        <td>@announcement.CreatedAt.ToString("g")</td>
                         <td>
                             <button class="btn btn-sm btn-info me-2" @onclick="() => ShowEditModal(announcement)">
-                                <i class="bi bi-pencil"></i> Редактировать
+                                <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn btn-sm btn-danger" @onclick="() => DeleteAnnouncement(announcement.Id)">
-                                <i class="bi bi-trash"></i> Удалить
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
                     </tr>
@@ -63,15 +69,15 @@ else
     </div>
 }
 
-<!-- Модальное окно для создания/редактирования -->
+<!-- Create/Edit Modal -->
 @if (showModal)
 {
-    <div class="modal show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5)">
-        <div class="modal-dialog modal-lg">
+    <div class="modal fade show" style="display: block; background: rgba(0,0,0,0.5)" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@(currentAnnouncement.Id == 0 ? "Создание" : "Редактирование") объявления</h5>
-                    <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">@(currentAnnouncement.Id == 0 ? "Create" : "Edit") Announcement</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <EditForm Model="@currentAnnouncement" OnValidSubmit="@HandleValidSubmit">
@@ -79,35 +85,49 @@ else
                         <ValidationSummary />
 
                         <div class="mb-3">
-                            <label for="title" class="form-label">Заголовок</label>
+                            <label for="title" class="form-label">Title *</label>
                             <InputText id="title" @bind-Value="currentAnnouncement.Title" class="form-control" />
                             <ValidationMessage For="@(() => currentAnnouncement.Title)" />
                         </div>
 
                         <div class="mb-3">
-                            <label for="content" class="form-label">Содержание</label>
+                            <label for="content" class="form-label">Content</label>
                             <InputTextArea id="content" @bind-Value="currentAnnouncement.Content" class="form-control" rows="5" />
                             <ValidationMessage For="@(() => currentAnnouncement.Content)" />
                         </div>
 
                         <div class="mb-3">
-                            <label for="imageUrl" class="form-label">Ссылка на изображение</label>
-                            <InputText id="imageUrl" @bind-Value="currentAnnouncement.ImageUrl" class="form-control" />
-                            <ValidationMessage For="@(() => currentAnnouncement.ImageUrl)" />
-                            @if (!string.IsNullOrEmpty(currentAnnouncement.ImageUrl))
+                            <label class="form-label">Image</label>
+                            <div>
+                                <InputFile OnChange="HandleImageUpload" class="form-control" accept="image/*" />
+                                <small class="text-muted">Max file size: 5MB (JPEG, PNG)</small>
+                            </div>
+                            @if (currentAnnouncement.ImageData != null)
                             {
-                                <div class="mt-2">
-                                    <img src="@currentAnnouncement.ImageUrl" class="img-thumbnail" style="max-height: 200px;" alt="Предпросмотр" />
+                                <div class="mt-3">
+                                    <img src="@GetImageSrc(currentAnnouncement)" class="img-thumbnail d-block" style="max-height: 200px;" />
+                                    <button type="button" @onclick="RemoveImage" class="btn btn-sm btn-danger mt-2">
+                                        <i class="fas fa-trash-alt"></i> Remove Image
+                                    </button>
                                 </div>
                             }
                         </div>
 
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save"></i> Сохранить
+                            <button type="submit" class="btn btn-primary" disabled="@isProcessing">
+                                @if (isProcessing)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Loading...</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-save"></i>
+                                }
+                                Save
                             </button>
-                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">
-                                <i class="bi bi-x-circle"></i> Отмена
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal" disabled="@isProcessing">
+                                <i class="fas fa-times"></i> Cancel
                             </button>
                         </div>
                     </EditForm>
@@ -117,45 +137,55 @@ else
     </div>
 }
 
-@code {
-    private List<Announcement> announcements = new();
-    private bool showModal = false;
-    private Announcement currentAnnouncement = new();
-    private bool isLoading = true;
-    private string? errorMessage;
+<!-- Image Preview Modal -->
+@if (showImagePreview)
+{
+    <div class="modal fade show" style="display: block; background: rgba(0,0,0,0.9)" tabindex="-1" role="dialog" @onclick="CloseImagePreview">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body text-center">
+                    <img src="@previewImageSrc" class="img-fluid" style="max-height: 80vh;" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
-    protected override async Task OnInitializedAsync()
+@code {
+    private IEnumerable<Announcement>? announcements;
+    private bool showModal = false;
+    private bool showImagePreview = false;
+    private string previewImageSrc = string.Empty;
+    private Announcement currentAnnouncement = new();
+    private string? fileName;
+    private string? statusMessage;
+    private bool isProcessing = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadAnnouncements();
+        if (firstRender)
+        {
+            await LoadAnnouncements();
+        }
     }
 
     private async Task LoadAnnouncements()
     {
         try
         {
-            isLoading = true;
-            errorMessage = null;
+            isProcessing = true;
+            announcements = await Http.GetFromJsonAsync<List<Announcement>>("api/announcement");
             StateHasChanged();
-
-            var response = await Http.GetAsync("api/announcement");
-
-            if (response.IsSuccessStatusCode)
-            {
-                announcements = await response.Content.ReadFromJsonAsync<List<Announcement>>() ?? new();
-            }
-            else
-            {
-                errorMessage = $"Ошибка при загрузке: {response.StatusCode}";
-            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Ошибка: {ex.Message}";
+            statusMessage = $"Error loading announcements: {ex.Message}";
+            await JSRuntime.InvokeVoidAsync("console.error", statusMessage);
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to load announcements");
         }
         finally
         {
-            isLoading = false;
-            StateHasChanged();
+            isProcessing = false;
         }
     }
 
@@ -172,7 +202,8 @@ else
                 Id = announcement.Id,
                 Title = announcement.Title,
                 Content = announcement.Content,
-                ImageUrl = announcement.ImageUrl,
+                ImageData = announcement.ImageData,
+                ImageContentType = announcement.ImageContentType,
                 CreatedAt = announcement.CreatedAt
             };
         showModal = true;
@@ -181,17 +212,82 @@ else
     private void CloseModal()
     {
         showModal = false;
+        StateHasChanged();
+    }
+
+    private void ShowImagePreview(Announcement announcement)
+    {
+        if (announcement.ImageData != null)
+        {
+            previewImageSrc = GetImageSrc(announcement);
+            showImagePreview = true;
+        }
+    }
+
+    private void CloseImagePreview()
+    {
+        showImagePreview = false;
+    }
+
+    private string GetImageSrc(Announcement announcement)
+    {
+        if (announcement.ImageData == null || announcement.ImageContentType == null)
+            return string.Empty;
+
+        return $"data:{announcement.ImageContentType};base64,{Convert.ToBase64String(announcement.ImageData)}";
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            if (file == null) return;
+
+            // Validate file size (max 5MB)
+            if (file.Size > 5 * 1024 * 1024)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "File size must be less than 5MB");
+                return;
+            }
+
+            // Validate content type
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Only image files are allowed");
+                return;
+            }
+
+            using var memoryStream = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(memoryStream);
+
+            currentAnnouncement.ImageData = memoryStream.ToArray();
+            currentAnnouncement.ImageContentType = file.ContentType;
+            fileName = file.Name;
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error uploading image: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error uploading image");
+        }
+    }
+
+    private void RemoveImage()
+    {
+        currentAnnouncement.ImageData = null;
+        currentAnnouncement.ImageContentType = null;
+        fileName = null;
     }
 
     private async Task HandleValidSubmit()
     {
         try
         {
-            isLoading = true;
-            StateHasChanged();
+            isProcessing = true;
 
             HttpResponseMessage response;
-
             if (currentAnnouncement.Id == 0)
             {
                 response = await Http.PostAsJsonAsync("api/announcement", currentAnnouncement);
@@ -203,8 +299,8 @@ else
 
             if (!response.IsSuccessStatusCode)
             {
-                errorMessage = $"Ошибка сохранения: {response.StatusCode}";
-                return;
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error);
             }
 
             showModal = false;
@@ -212,48 +308,43 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Ошибка: {ex.Message}";
+            statusMessage = $"Error saving announcement: {ex.Message}";
+            await JSRuntime.InvokeVoidAsync("console.error", statusMessage);
+            await JSRuntime.InvokeVoidAsync("alert", "Error saving announcement");
         }
         finally
         {
-            isLoading = false;
-            StateHasChanged();
+            isProcessing = false;
         }
     }
 
     private async Task DeleteAnnouncement(int id)
     {
-        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Вы уверены, что хотите удалить это объявление?");
-        if (!confirmed) return;
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this announcement?"))
+            return;
 
         try
         {
-            isLoading = true;
-            StateHasChanged();
-
-            var response = await Http.DeleteAsync($"api/announcements/{id}");
+            isProcessing = true;
+            var response = await Http.DeleteAsync($"api/announcement/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
-                errorMessage = $"Ошибка удаления: {response.StatusCode}";
-                return;
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error);
             }
 
             await LoadAnnouncements();
         }
         catch (Exception ex)
         {
-            errorMessage = $"Ошибка: {ex.Message}";
+            statusMessage = $"Error deleting announcement: {ex.Message}";
+            await JSRuntime.InvokeVoidAsync("console.error", statusMessage);
+            await JSRuntime.InvokeVoidAsync("alert", "Error deleting announcement");
         }
         finally
         {
-            isLoading = false;
-            StateHasChanged();
+            isProcessing = false;
         }
-    }
-
-    private void ClearError()
-    {
-        errorMessage = null;
     }
 }

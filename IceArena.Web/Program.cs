@@ -9,6 +9,7 @@ using IceArena.Web.Interfaces;
 using IceArena.Web.Mapping;
 using IceArena.Web.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using System.Net.Http.Headers;
@@ -51,6 +52,11 @@ builder.Services.AddHttpClient<IMatchServiceee, MatchServiceee>(client =>
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthService>();
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
+});
 
 builder.Services.AddHttpClient<AuthService>(client =>
 {

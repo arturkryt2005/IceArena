@@ -3,6 +3,7 @@ using System;
 using IceArena.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IceArena.Data.Migrations
 {
     [DbContext(typeof(IceArenaDbContext))]
-    partial class IceArenaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250606212849_AddImageDataToAnnouncement")]
+    partial class AddImageDataToAnnouncement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
