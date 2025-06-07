@@ -5,6 +5,54 @@
 @rendermode InteractiveServer
 
 <div class="dark-theme">
+    <div class="add-team-form">
+        <h2>Добавить команду</h2>
+        <EditForm Model="@newTeam" OnValidSubmit="HandleAddTeam">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="teamName">Название команды:</label>
+                <InputText id="teamName" class="form-control" @bind-Value="newTeam.Name" />
+                <ValidationMessage For="@(() => newTeam.Name)" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Добавить команду</button>
+        </EditForm>
+    </div>
+
+    @if (teams != null && teams.Count > 0)
+    {
+        <h2>Список команд</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Создано</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var team in teams)
+                {
+                    <tr>
+                        <td>@team.Id</td>
+                        <td>@team.Name</td>
+                        <td>@team.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" @onclick="() => OpenEditTeamModal(team)">Редактировать</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteTeam(team.Id)" style="margin-left: 5px;">Удалить</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Нет доступных команд.</p>
+    }
     <h1 class="page-title">Управление матчами</h1>
 
     <div class="add-match-form">
@@ -181,6 +229,27 @@
             </div>
         </div>
     }
+    @if (showEditTeamModal)
+    {
+        <div class="modal-overlay" @onclick="CloseEditTeamModal">
+            <div class="modal-content" @onclick:stopPropagation>
+                <h3>Редактировать команду</h3>
+                <EditForm Model="@editTeam" OnValidSubmit="HandleEditTeamSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <label for="editTeamName">Название:</label>
+                        <InputText id="editTeamName" class="form-control" @bind-Value="editTeam.Name" />
+                        <ValidationMessage For="@(() => editTeam.Name)" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseEditTeamModal">Отмена</button>
+                </EditForm>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
@@ -191,7 +260,11 @@
     private bool showEditModal = false;
     private bool showErrorModal = false;
     private string errorMessage = "";
-
+    private Team newTeam = new Team();
+    private Team editTeam = new Team();
+    private bool showEditTeamModal = false;
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; } = default!;
     protected override async Task OnInitializedAsync()
     {
         try
@@ -202,6 +275,88 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Ошибка при загрузке данных: {ex.Message}");
+        }
+    }
+
+    private void OpenEditTeamModal(Team team)
+    {
+        editTeam = new Team
+            {
+                Id = team.Id,
+                Name = team.Name
+            };
+        showEditTeamModal = true;
+    }
+
+    private async Task HandleEditTeamSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(editTeam.Name))
+        {
+            ShowError("Название команды обязательно.");
+            return;
+        }
+
+        var response = await Http.PutAsJsonAsync($"api/Team/{editTeam.Id}", editTeam);
+        if (response.IsSuccessStatusCode)
+        {
+            teams = await Http.GetFromJsonAsync<List<Team>>("api/Team");
+            CloseEditTeamModal();
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            ShowError($"Ошибка при обновлении команды: {error}");
+        }
+    }
+
+    private async Task DeleteTeam(int teamId)
+    {
+        var confirmDelete = await JsRuntime.InvokeAsync<bool>("confirm", "Вы уверены, что хотите удалить эту команду?");
+        if (!confirmDelete) return;
+
+        var response = await Http.DeleteAsync($"api/Team/{teamId}");
+        if (response.IsSuccessStatusCode)
+        {
+            teams = await Http.GetFromJsonAsync<List<Team>>("api/Team");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            ShowError($"Ошибка при удалении команды: {error}");
+        }
+    }
+
+    private void CloseEditTeamModal()
+    {
+        showEditTeamModal = false;
+        editTeam = new Team();
+    }
+
+    private async Task HandleAddTeam()
+    {
+        if (string.IsNullOrWhiteSpace(newTeam.Name))
+        {
+            ShowError("Название команды обязательно.");
+            return;
+        }
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/Team", newTeam);
+            if (response.IsSuccessStatusCode)
+            {
+                teams = await Http.GetFromJsonAsync<List<Team>>("api/Team");
+                newTeam = new Team(); 
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                ShowError($"Ошибка при добавлении команды: {error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Исключение при добавлении команды: {ex.Message}");
         }
     }
 
