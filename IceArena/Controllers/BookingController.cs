@@ -1,5 +1,6 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Services.Interfaces;
+using IceArena.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IceArena.Controllers
@@ -22,6 +23,8 @@ namespace IceArena.Controllers
             return booking != null ? Ok(booking) : NotFound();
         }
 
+        
+
         [HttpGet]
         public async Task<IActionResult> GetBookings()
         {
@@ -38,6 +41,45 @@ namespace IceArena.Controllers
 
             var slots = await _bookingService.GetAvailableSlotsAsync(utcDate);
             return Ok(slots);
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateBookingStatus(int id, [FromBody] UpdateBookingStatusDto dto)
+        {
+            var booking = await _bookingService.GetBookingAsync(id);
+            if (booking == null)
+                return NotFound();
+
+            booking.Status = dto.Status;
+            await _bookingService.UpdateBookingAsync(booking);
+
+            return NoContent();
+        }
+
+        [HttpPost("{bookingId}/book/{userId}")]
+        public async Task<IActionResult> BookBooking(int bookingId, int userId)
+        {
+            var booking = await _bookingService.GetBookingAsync(bookingId);
+            if (booking == null) return NotFound();
+
+            booking.Status = "Booked";
+            booking.UserId = userId;
+
+            await _bookingService.UpdateBookingAsync(booking);
+            return NoContent();
+        }
+
+        // Отмена брони — Cancelled
+        [HttpPost("{bookingId}/cancel")]
+        public async Task<IActionResult> CancelBooking(int bookingId)
+        {
+            var booking = await _bookingService.GetBookingAsync(bookingId);
+            if (booking == null) return NotFound();
+
+            booking.Status = "Cancelled";
+
+            await _bookingService.UpdateBookingAsync(booking);
+            return NoContent();
         }
 
         [HttpGet("available")]
@@ -85,6 +127,21 @@ namespace IceArena.Controllers
         {
             var bookings = await _bookingService.GetUserBookingsAsync(userId);
             return Ok(bookings);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBooking(int id)
+        {
+            var booking = await _bookingService.GetBookingAsync(id);
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            await _bookingService.DeleteBooking(id);
+            await _bookingService.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

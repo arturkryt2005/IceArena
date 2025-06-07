@@ -58,6 +58,8 @@ namespace IceArena.Data.Repositories.Implementations
             _dbContext.Bookings.Update(booking);
         }
 
+
+
         public async Task DeleteAsync(int id)
         {
             var booking = await _dbContext.Bookings.FindAsync(id);

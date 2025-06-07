@@ -1,6 +1,7 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Data.Repositories.Interfaces;
 using IceArena.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace IceArena.Services.Implementations
 {
@@ -44,7 +45,7 @@ namespace IceArena.Services.Implementations
             await _bookingRepository.SaveChangesAsync();
         }
 
-        public async Task UpdateBooking(Booking booking)
+        public async Task UpdateBookingAsync(Booking booking)
         {
             await _bookingRepository.UpdateAsync(booking);
             await _bookingRepository.SaveChangesAsync();
@@ -53,6 +54,11 @@ namespace IceArena.Services.Implementations
         public async Task DeleteBooking(int id)
         {
             await _bookingRepository.DeleteAsync(id);
+            await _bookingRepository.SaveChangesAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
             await _bookingRepository.SaveChangesAsync();
         }
 
@@ -72,5 +78,7 @@ namespace IceArena.Services.Implementations
                 await _bookingRepository.SaveChangesAsync();
             }
         }
+
+
     }
 }

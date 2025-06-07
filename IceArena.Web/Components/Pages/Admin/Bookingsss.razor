@@ -95,15 +95,20 @@ else
                     <td>@booking.Status</td>
                     <td>@booking.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                     <td>
-                        @if (booking.Status == "Pending")
+                        @if (booking.UserId.HasValue)
                         {
-                            <button class="btn btn-primary" @onclick="() => AcceptBooking(booking.Id, user?.Email)">
-                                Отправить письмо
-                            </button>
+                            <div>
+                                <button class="btn btn-success" @onclick="() => AcceptBooking(booking.Id, user?.Email)">
+                                    Подтвердить
+                                </button>
+                                <button class="btn btn-danger" @onclick="() => CancelBooking(booking.Id)" style="margin-left: 10px;">
+                                    Отменить
+                                </button>
+                            </div>
                         }
-                        else if (booking.Status == "Available" || booking.Status == "Booked")
+                        else if (booking.Status == "Available" || booking.Status == "Pending")
                         {
-                            <button class="btn btn-warning" @onclick="() => CancelBooking(booking.Id)">
+                            <button class="btn btn-danger" @onclick="() => CancelBooking(booking.Id)">
                                 Отменить
                             </button>
                         }
@@ -249,7 +254,15 @@ else
             var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
             if (booking != null)
             {
-                booking.Status = "Booked";
+                // Обновляем статус на сервере
+                var statusDto = new { Status = "Booked" };
+                var response = await Http.PutAsJsonAsync($"api/Booking/{bookingId}/status", statusDto);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Message = $"Письмо отправлено, но не удалось обновить статус: {response.ReasonPhrase}";
+                    // Возвращаем статус обратно, если обновление не удалось
+                    booking.Status = "Pending";
+                }
             }
 
             StateHasChanged();
@@ -260,22 +273,34 @@ else
         }
     }
 
+    private async Task DeleteBooking(int bookingId)
+    {
+        var response = await Http.DeleteAsync($"api/Booking/{bookingId}");
+        if (response.IsSuccessStatusCode)
+        {
+            bookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
+            Message = "Бронирование успешно удалено.";
+            StateHasChanged();
+        }
+        else
+        {
+            Message = $"Ошибка при удалении: {response.ReasonPhrase}";
+        }
+    }
+
     private async Task CancelBooking(int bookingId)
     {
-        var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
-        if (booking == null)
-        {
-            Message = "Бронирование не найдено.";
-            return;
-        }
-
-        booking.Status = "Cancelled";
-        var response = await Http.PutAsJsonAsync($"api/Booking/{bookingId}", booking);
+        var response = await Http.PostAsync($"api/Booking/{bookingId}/cancel", null);
 
         if (response.IsSuccessStatusCode)
         {
-            Message = "Бронирование успешно отменено.";
-            StateHasChanged();
+            var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
+            if (booking != null)
+            {
+                booking.Status = "Cancelled";
+                Message = "Бронирование успешно отменено.";
+                StateHasChanged();
+            }
         }
         else
         {
@@ -283,25 +308,6 @@ else
         }
     }
 
-    private async Task DeleteBooking(int bookingId)
-    {
-        var response = await Http.DeleteAsync($"api/Booking/{bookingId}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            var bookingToRemove = bookings.FirstOrDefault(b => b.Id == bookingId);
-            if (bookingToRemove != null)
-            {
-                bookings.Remove(bookingToRemove);
-                Message = "Бронирование успешно удалено.";
-                StateHasChanged();
-            }
-        }
-        else
-        {
-            Message = $"Ошибка при удалении: {response.ReasonPhrase}";
-        }
-    }
 
     private void ShowModal(string message)
     {
