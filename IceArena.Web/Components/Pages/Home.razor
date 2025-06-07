@@ -4,8 +4,10 @@
 @using IceArena.Web.Interfaces
 @using IceArena.Web.Models
 @using IceArena.Web.Services
+@using IceArena.Data.Models
 @inject IMatchServiceee MatchService
 @inject IJSRuntime JSRuntime
+@inject HttpClient Http
 @using IceArena.Web.Components.Modal
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthStateProvider
@@ -59,27 +61,81 @@ else
     </div>
 }
 
-<div class="carousel-container2">
-    <div class="carousel2">
-        <div class="arrow left">&lt;</div>
-        <img src="images/ledoviy.jpg" alt="Картинка">
-        <div class="arrow right">&gt;</div>
-    </div>
-    <div class="carousel-text">
-        <h2 class="glavtext">Главные новости</h2>
-    </div>
-</div>
+<!-- Новый блок с каруселью объявлений -->
+<div class="announcements-carousel-container mt-5">
+    <h2 class="zag">Новости и объявления</h2>
 
-<div class="news">
-    <p>Следите за последними новостями и событиями!</p>
+    @if (announcements == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (announcements.Any())
+    {
+        <div id="announcementsCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                @for (int i = 0; i < announcements.Count; i++)
+                {
+                    <button type="button"
+                            data-bs-target="#announcementsCarousel"
+                            data-bs-slide-to="@i"
+                            class="@(i == 0 ? "active" : "")"
+                            aria-current="@(i == 0 ? "true" : "")"
+                            aria-label="Slide @(i + 1)"></button>
+                }
+            </div>
+
+            <div class="carousel-inner">
+                @for (int i = 0; i < announcements.Count; i++)
+                {
+                    var announcement = announcements[i];
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <div class="announcement-card">
+                            @if (announcement.ImageData != null)
+                            {
+                                <img src="@GetImageSrc(announcement)"
+                                     class="announcement-image"
+                                     alt="@announcement.Title" />
+                            }
+                            <div class="announcement-content">
+                                <h3>@announcement.Title</h3>
+                                <p>@announcement.Content</p>
+                                <small class="text-muted">
+                                    @announcement.CreatedAt.ToString("dd.MM.yyyy")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#announcementsCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#announcementsCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Нет доступных объявлений</div>
+    }
 </div>
 
 @code {
- private List<MatchDto>? matches;
+    private List<MatchDto>? matches;
+    private List<Announcement>? announcements;
 
     protected override async Task OnInitializedAsync()
     {
         matches = await MatchService.GetMatchesAsync();
+        await LoadAnnouncements();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -88,12 +144,33 @@ else
         {
             try
             {
-                await JSRuntime.InvokeVoidAsync("initializeCarousel");
+                await JSRuntime.InvokeVoidAsync("initializeMainCarousel");
+                await JSRuntime.InvokeVoidAsync("initializeAnnouncementsCarousel");
             }
             catch (JSException ex)
             {
-                Console.WriteLine($"Error initializing carousel: {ex.Message}");
+                Console.WriteLine($"Error initializing carousels: {ex.Message}");
             }
         }
+    }
+
+    private async Task LoadAnnouncements()
+    {
+        try
+        {
+            announcements = await Http.GetFromJsonAsync<List<Announcement>>("api/announcement");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading announcements: {ex.Message}");
+        }
+    }
+
+    private string GetImageSrc(Announcement announcement)
+    {
+        if (announcement.ImageData == null || announcement.ImageContentType == null)
+            return string.Empty;
+
+        return $"data:{announcement.ImageContentType};base64,{Convert.ToBase64String(announcement.ImageData)}";
     }
 }

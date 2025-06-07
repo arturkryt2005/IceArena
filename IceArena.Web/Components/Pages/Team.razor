@@ -1,12 +1,29 @@
 ﻿@page "/team"
 @using HtmlAgilityPack
 @inject HttpClient Http
+@rendermode InteractiveServer
 
 <h3>Команда</h3>
 
-@if (teamMembers == null)
+<div class="year-selector">
+    <label for="yearSelect">Выберите год состава:</label>
+    <select id="yearSelect" @onchange="OnSelectedYearChanged">
+        @foreach (var yearOption in availableYears)
+        {
+            <option value="@yearOption.Year" selected="@(yearOption.Year == selectedYear)">
+                @yearOption.Year (@yearOption.TeamName)
+            </option>
+        }
+    </select>
+</div>
+
+@if (isLoading)
 {
     <p>Загрузка данных...</p>
+}
+else if (teamMembers == null)
+{
+    <p>Выберите год для отображения состава</p>
 }
 else
 {
@@ -39,12 +56,64 @@ else
 
 @code {
     private List<TeamMember> teamMembers;
+    private bool isLoading = false;
+    private string selectedYear = "2009";
+
+    // Определение класса YearOption
+    public class YearOption
+    {
+        public string Year { get; set; }
+        public string TeamId { get; set; }
+        public string TeamName { get; set; }
+    }
+
+    private List<YearOption> availableYears = new List<YearOption>
+    {
+        new YearOption { Year = "2009", TeamId = "328", TeamName = "Состав 2009" },
+        new YearOption { Year = "2013", TeamId = "524", TeamName = "Состав 2013" },
+        new YearOption { Year = "2014", TeamId = "564", TeamName = "Состав 2014" },
+        new YearOption { Year = "2015", TeamId = "614", TeamName = "Состав 2015" },
+        new YearOption { Year = "2016", TeamId = "615", TeamName = "Состав 2016" }
+    };
 
     protected override async Task OnInitializedAsync()
     {
-        // Парсим данные с сайта
-        var htmlContent = await Http.GetStringAsync("https://fhrt.ru/team/roster/328/16#roster");
-        teamMembers = ParseTeamData(htmlContent);
+        await LoadTeamData();
+    }
+
+    private async Task OnSelectedYearChanged(ChangeEventArgs e)
+    {
+        selectedYear = e.Value?.ToString();
+        await LoadTeamData();
+    }
+
+
+    private async Task LoadTeamData()
+    {
+        isLoading = true;
+        teamMembers = null;
+        StateHasChanged(); // Обновляем UI перед длительной операцией
+
+        try
+        {
+            var yearOption = availableYears.FirstOrDefault(y => y.Year == selectedYear);
+            if (yearOption != null)
+            {
+                // Формируем URL в зависимости от выбранного года и ID команды
+                var url = $"https://fhrt.ru/team/roster/{yearOption.TeamId}/16#roster";
+                var htmlContent = await Http.GetStringAsync(url);
+                teamMembers = ParseTeamData(htmlContent);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при загрузке данных: {ex.Message}");
+            // Можно добавить обработку ошибки для пользователя
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private List<TeamMember> ParseTeamData(string htmlContent)
@@ -53,7 +122,6 @@ else
         var htmlDocument = new HtmlDocument();
         htmlDocument.LoadHtml(htmlContent);
 
-        // Находим основную таблицу
         var mainTable = htmlDocument.DocumentNode.SelectSingleNode("//table[contains(@class, 'table-striped')]");
         if (mainTable == null)
         {
@@ -61,7 +129,6 @@ else
             return members;
         }
 
-        // Парсим все строки таблицы
         var rows = mainTable.SelectNodes(".//tr");
         if (rows == null) return members;
 
@@ -70,7 +137,6 @@ else
 
         foreach (var row in rows)
         {
-            // Определяем текущую секцию
             var titleCell = row.SelectSingleNode(".//td[contains(@class, 'roster__title-row')]");
             if (titleCell != null)
             {

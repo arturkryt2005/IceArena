@@ -1,4 +1,4 @@
-﻿// Функция для главной карусели
+﻿// wwwroot/js/carousels.js
 function initializeMainCarousel() {
     const images = [
         'images/ledoviy.jpg',
@@ -9,6 +9,11 @@ function initializeMainCarousel() {
     const imgElement = document.querySelector('.carousel img');
     const leftArrow = document.querySelector('.carousel .left');
     const rightArrow = document.querySelector('.carousel .right');
+
+    if (!imgElement || !leftArrow || !rightArrow) {
+        console.warn('Не найдены элементы карусели');
+        return;
+    }
 
     function changeImage(nextIndex, direction) {
         imgElement.style.transition = 'transform 0.3s ease-in-out';
@@ -40,7 +45,6 @@ function initializeMainCarousel() {
     }, 5000);
 }
 
-// Функция для карусели объявлений
 function initializeAnnouncementsCarousel() {
     const carousel = new bootstrap.Carousel(document.getElementById('announcementsCarousel'), {
         interval: 5000,
@@ -58,6 +62,5 @@ function initializeAnnouncementsCarousel() {
     }
 }
 
-// Экспортируем функции в глобальную область видимости
 window.initializeMainCarousel = initializeMainCarousel;
 window.initializeAnnouncementsCarousel = initializeAnnouncementsCarousel;
