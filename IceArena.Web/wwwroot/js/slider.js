@@ -1,5 +1,4 @@
-﻿// Функция для главной карусели
-function initializeMainCarousel() {
+﻿function initializeMainCarousel() {
     const images = [
         'images/ledoviy.jpg',
         'images/ledoviyelka.jpg',
@@ -40,7 +39,6 @@ function initializeMainCarousel() {
     }, 5000);
 }
 
-// Функция для карусели объявлений
 function initializeAnnouncementsCarousel() {
     const carousel = new bootstrap.Carousel(document.getElementById('announcementsCarousel'), {
         interval: 5000,
@@ -58,6 +56,5 @@ function initializeAnnouncementsCarousel() {
     }
 }
 
-// Экспортируем функции в глобальную область видимости
 window.initializeMainCarousel = initializeMainCarousel;
 window.initializeAnnouncementsCarousel = initializeAnnouncementsCarousel;

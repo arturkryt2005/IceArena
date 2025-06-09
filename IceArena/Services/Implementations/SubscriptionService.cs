@@ -1,7 +1,6 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Data.Repositories.Interfaces;
 using IceArena.Services.Interfaces;
-using System.Web.Http;
 
 namespace IceArena.Services.Implementations
 {

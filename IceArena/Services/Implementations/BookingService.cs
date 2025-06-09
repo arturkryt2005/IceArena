@@ -1,7 +1,6 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Data.Repositories.Interfaces;
 using IceArena.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace IceArena.Services.Implementations
 {

@@ -4,7 +4,7 @@
 @inject IJSRuntime JSRuntime
 @using IceArena.Data.Models
 
-<h3>Админская часть</h3>
+<PageTitle>Админ-панель</PageTitle>
 
 <div class="dashboard-container">
     <div class="stats-cards" style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -111,10 +111,7 @@
         <canvas id="statusChart" width="400" height="200" style="display: block; width: 400px; height: 200px; border: 1px solid black;"></canvas>
     </div>
 
-    <div class="action-buttons">
-        <button id="exportButton" name="exportButton" class="btn btn-secondary" @* @onclick="ExportData" *@>Экспорт данных</button>
-        <button id="clearLogsButton" name="clearLogsButton" class="btn btn-danger">Очистить логи</button>
-    </div>
+
 </div>
 
 @code {

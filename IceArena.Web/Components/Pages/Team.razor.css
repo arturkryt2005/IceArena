@@ -204,7 +204,7 @@ select#yearSelect {
     font-size: 1rem;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-    appearance: none; /* Скрываем стандартную стрелочку */
+    appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
     background-image: url('data:image/svg+xml;utf8,<svg fill="%23FFD700" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
@@ -217,14 +217,12 @@ select#yearSelect {
     cursor: pointer;
 }
 
-    /* Фокус и наведение */
     select#yearSelect:focus {
         outline: none;
         box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
         background-color: #333;
     }
 
-/* Для мобильных устройств (опционально) */
 @media (max-width: 600px) {
     select#yearSelect {
         font-size: 1rem;

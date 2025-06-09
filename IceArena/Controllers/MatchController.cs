@@ -1,7 +1,6 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace IceArena.Controllers
 {

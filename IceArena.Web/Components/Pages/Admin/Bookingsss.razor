@@ -6,7 +6,7 @@
 @inject HttpClient Http
 @rendermode InteractiveServer
 
-<h3>Бронирования</h3>
+<PageTitle>Бронирования</PageTitle>
 
 @if (bookings == null || users == null)
 {
@@ -254,13 +254,11 @@ else
             var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
             if (booking != null)
             {
-                // Обновляем статус на сервере
                 var statusDto = new { Status = "Booked" };
                 var response = await Http.PutAsJsonAsync($"api/Booking/{bookingId}/status", statusDto);
                 if (!response.IsSuccessStatusCode)
                 {
                     Message = $"Письмо отправлено, но не удалось обновить статус: {response.ReasonPhrase}";
-                    // Возвращаем статус обратно, если обновление не удалось
                     booking.Status = "Pending";
                 }
             }

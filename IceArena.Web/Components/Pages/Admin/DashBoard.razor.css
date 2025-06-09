@@ -249,7 +249,6 @@ h3 {
     }
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .dashboard-container {
         padding: 15px;

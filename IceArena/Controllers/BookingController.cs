@@ -69,7 +69,6 @@ namespace IceArena.Controllers
             return NoContent();
         }
 
-        // Отмена брони — Cancelled
         [HttpPost("{bookingId}/cancel")]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {

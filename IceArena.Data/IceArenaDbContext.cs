@@ -1,8 +1,5 @@
 ﻿using IceArena.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text.RegularExpressions;
 using Match = IceArena.Data.Models.Match;
 
 namespace IceArena.Data

@@ -2,6 +2,7 @@
 @using HtmlAgilityPack
 @inject HttpClient Http
 @rendermode InteractiveServer
+<PageTitle>Команда</PageTitle>
 
 <h3>Команда</h3>
 
@@ -59,7 +60,6 @@ else
     private bool isLoading = false;
     private string selectedYear = "2009";
 
-    // Определение класса YearOption
     public class YearOption
     {
         public string Year { get; set; }
@@ -92,14 +92,13 @@ else
     {
         isLoading = true;
         teamMembers = null;
-        StateHasChanged(); // Обновляем UI перед длительной операцией
+        StateHasChanged(); 
 
         try
         {
             var yearOption = availableYears.FirstOrDefault(y => y.Year == selectedYear);
             if (yearOption != null)
             {
-                // Формируем URL в зависимости от выбранного года и ID команды
                 var url = $"https://fhrt.ru/team/roster/{yearOption.TeamId}/16#roster";
                 var htmlContent = await Http.GetStringAsync(url);
                 teamMembers = ParseTeamData(htmlContent);
@@ -108,7 +107,6 @@ else
         catch (Exception ex)
         {
             Console.WriteLine($"Ошибка при загрузке данных: {ex.Message}");
-            // Можно добавить обработку ошибки для пользователя
         }
         finally
         {
@@ -154,20 +152,16 @@ else
                 }
             }
 
-            // Пропускаем заголовки столбцов
             if (row.SelectSingleNode(".//th") != null) continue;
 
-            // Обрабатываем данные
             var cells = row.SelectNodes(".//td");
             if (cells == null) continue;
 
-            // Извлекаем фото (общее для тренеров и игроков)
             var photoNode = cells[0].SelectSingleNode(".//img[contains(@class, 'roster__photo')]");
             string photoUrl = photoNode?.GetAttributeValue("src", "") ?? "";
 
             if (isCoachesSection && cells.Count >= 3)
             {
-                // Парсим тренера
                 var nameLink = cells[0].SelectSingleNode(".//a[.//span[contains(@class, 'roster__')]]");
                 if (nameLink != null)
                 {
@@ -187,7 +181,6 @@ else
             }
             else if (isPlayersSection && cells.Count >= 4)
             {
-                // Парсим игрока
                 var nameLink = cells[0].SelectSingleNode(".//a[.//span[contains(@class, 'roster__')]]");
                 if (nameLink != null)
                 {

@@ -219,7 +219,6 @@
         transform: translateY(0);
     }
 }
-/* === Контейнер карусели === */
 .announcements-carousel-container {
     background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
     padding: 3rem 1rem;
@@ -231,13 +230,12 @@
     overflow: hidden;
 }
 
-/* === Карточка объявления с фоновой картинкой === */
 .announcement-card {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 600px; /* Фиксированная высота для всех слайдов */
+    height: 600px; 
     background-color: #2c2c2c;
     border-radius: 20px;
     overflow: hidden;
@@ -250,7 +248,6 @@
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
     }
 
-/* === Фоновая картинка === */
 .announcement-image {
     position: absolute;
     top: 0;
@@ -261,7 +258,6 @@
     z-index: 1;
 }
 
-/* === Оверлей для улучшения контраста текста === */
 .announcement-overlay {
     position: absolute;
     top: 0;
@@ -272,7 +268,6 @@
     z-index: 2;
 }
 
-/* === Контент поверх картинки === */
 .announcement-content {
     position: absolute;
     z-index: 3;

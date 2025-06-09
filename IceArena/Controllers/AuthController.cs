@@ -1,18 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using IceArena.Data.Models;
+using IceArena.Data.Repositories.Interfaces;
+using IceArena.Data.Requests;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using BCrypt.Net;
-using IceArena.Data.Models;
-using IceArena.Data.Repositories.Interfaces;
-using IceArena.Data.Requests;
 
 namespace IceArena.Controllers
 {

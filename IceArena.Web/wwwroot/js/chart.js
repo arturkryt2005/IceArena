@@ -8,7 +8,7 @@
     console.log("Canvas найден, инициализация Chart.js...");
     try {
         new Chart(ctx.getContext('2d'), {
-            type: chartType, // "bar", "pie" или "line"
+            type: chartType, 
             data: {
                 labels: labels,
                 datasets: [{

@@ -1,5 +1,4 @@
-﻿// wwwroot/js/carousels.js
-function initializeMainCarousel() {
+﻿function initializeMainCarousel() {
     const images = [
         'images/ledoviy.jpg',
         'images/ledoviyelka.jpg',
@@ -52,7 +51,6 @@ function initializeAnnouncementsCarousel() {
         wrap: true
     });
 
-    // Кастомные стрелки
     const prevButton = document.querySelector('#announcementsCarousel .carousel-control-prev');
     const nextButton = document.querySelector('#announcementsCarousel .carousel-control-next');
 

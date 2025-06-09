@@ -1,5 +1,4 @@
 ﻿using IceArena.Data.Models;
-using IceArena.Data.Repositories.Implementations;
 using IceArena.Data.Repositories.Interfaces;
 using IceArena.Services.Interfaces;
 
