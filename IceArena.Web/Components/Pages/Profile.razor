@@ -178,15 +178,33 @@ else
                 userId = id;
                 isAuthenticated = !string.IsNullOrEmpty(token);
 
-                bookings = await Http.GetFromJsonAsync<List<IceArena.Data.Models.Booking>>($"api/Booking/user/{userId}") ?? new();
-                var now = DateTime.Now;
-                upcomingBookings = bookings.Where(b => b.Date.Date >= now.Date).ToList();
-                pastBookings = bookings.Where(b => b.Date.Date < now.Date).ToList();
-
-                Console.WriteLine($"Загружено {bookings.Count} бронирований:");
-                foreach (var booking in bookings)
+                if (userId > 0)
                 {
-                    Console.WriteLine($"ID: {booking.Id}, Статус: {booking.Status}");
+                    var response = await Http.GetAsync($"api/Booking/user/{userId}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        bookings = (await Http.GetFromJsonAsync<List<IceArena.Data.Models.Booking>>($"api/Booking/user/{userId}") ?? new())
+                            .Where(b => b.UserId == userId)
+                            .ToList();
+                        Console.WriteLine($"Загружено {bookings.Count} бронирований для пользователя {userId}");
+                        foreach (var booking in bookings)
+                        {
+                            Console.WriteLine($"ID: {booking.Id}, UserId: {booking.UserId}, Статус: {booking.Status}");
+                        }
+
+                        var now = DateTime.Now;
+                        upcomingBookings = bookings.Where(b => b.Date.Date >= now.Date).ToList();
+                        pastBookings = bookings.Where(b => b.Date.Date < now.Date).ToList();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Ошибка при запросе бронирований: {response.StatusCode}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Неверный userId");
                 }
             }
 

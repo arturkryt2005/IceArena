@@ -146,33 +146,58 @@
             return;
         }
 
-        var userBookings = await Http.GetFromJsonAsync<List<IceArena.Data.Models.Booking>>($"api/Booking/user/{userId}");
-
-        if (userBookings != null)
+        if (selectedDate == null)
         {
-            var today = selectedDate?.Date ?? DateTime.UtcNow.Date;
+            notificationMessage = "Выберите дату для бронирования.";
+            _ = HideNotificationAfterDelay();
+            StateHasChanged();
+            return;
+        }
 
-            var bookingsToday = userBookings
-                .Where(b => b.Date.Date == today.Date)
-                .ToList();
-
-            if (bookingsToday.Count >= 2)
+        try
+        {
+            var userBookings = await Http.GetFromJsonAsync<List<Booking>>($"api/Booking/user/{userId}/recent");
+            if (userBookings == null || !userBookings.Any())
             {
-                notificationMessage = "Вы не можете забронировать более 2 слотов за день.";
+                Console.WriteLine("[DEBUG] Нет броней — можно бронировать.");
+                showLoginModal = false;
+                showConfirmationModal = true;
+                notificationMessage = "";
+                StateHasChanged();
+                return;
+            }
+
+            // Считаем только те брони, которые были сделаны за последние 24 часа
+            var now = DateTime.UtcNow;
+
+            Console.WriteLine($"[DEBUG] recentBookings.Count = {userBookings.Count}");
+
+            if (userBookings.Count >= 2)
+            {
+                notificationMessage = "Вы не можете забронировать более 2 слотов за последние 24 часа.";
                 showLoginModal = false;
                 showConfirmationModal = false;
                 StateHasChanged();
                 return;
             }
-        }
 
-        showLoginModal = false;
-        showConfirmationModal = true;
-        StateHasChanged();
+            notificationMessage = "";
+            showLoginModal = false;
+            showConfirmationModal = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при проверке броней: {ex.Message}");
+            notificationMessage = "Ошибка при проверке доступности.";
+            _ = HideNotificationAfterDelay();
+            StateHasChanged();
+        }
     }
 
     private async Task ConfirmBooking()
     {
+
         if (selectedDate.HasValue && selectedTime.HasValue)
         {
             var bookingId = availableSlotsByDate[selectedDate.Value.Date]

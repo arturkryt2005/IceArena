@@ -43,6 +43,8 @@ namespace IceArena.Controllers
             return Ok(slots);
         }
 
+
+
         [HttpPut("{id}/status")]
         public async Task<IActionResult> UpdateBookingStatus(int id, [FromBody] UpdateBookingStatusDto dto)
         {
@@ -127,6 +129,25 @@ namespace IceArena.Controllers
             var bookings = await _bookingService.GetUserBookingsAsync(userId);
             return Ok(bookings);
         }
+
+        [HttpGet("user/{userId}/recent")]
+        public async Task<IActionResult> GetUserRecentBookings(int userId)
+        {
+            var bookings = await _bookingService.GetUserRecentBookingsAsync(userId);
+
+            var result = bookings.Select(b => new
+            {
+                b.Id,
+                b.Date,
+                b.StartTime,
+                b.EndTime,
+                b.Status,
+                b.CreatedAt
+            });
+
+            return Ok(result);
+        }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBooking(int id)

@@ -58,7 +58,16 @@ namespace IceArena.Data.Repositories.Implementations
             _dbContext.Bookings.Update(booking);
         }
 
+        public async Task<List<Booking>> GetUserRecentBookingsAsync(int userId)
+        {
+            var now = DateTime.UtcNow;
 
+            return await _dbContext.Bookings
+                .Where(b => b.UserId == userId &&
+                            b.Status == "Booked" &&
+                            b.CreatedAt >= now.AddHours(-24))
+                .ToListAsync();
+        }
 
         public async Task DeleteAsync(int id)
         {

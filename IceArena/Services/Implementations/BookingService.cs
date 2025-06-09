@@ -1,10 +1,11 @@
 ﻿using IceArena.Data.Models;
 using IceArena.Data.Repositories.Interfaces;
 using IceArena.Services.Interfaces;
+using System.Linq;
 
 namespace IceArena.Services.Implementations
 {
-    public class BookingService: IBookingService
+    public class BookingService : IBookingService
     {
         private readonly IBookingRepository _bookingRepository;
 
@@ -17,6 +18,7 @@ namespace IceArena.Services.Implementations
         {
             return await _bookingRepository.GetByIdAsync(id);
         }
+
 
         public async Task<IEnumerable<Booking>> GetBookingsAsync()
         {
@@ -36,6 +38,11 @@ namespace IceArena.Services.Implementations
         public async Task<IEnumerable<Booking>> GetAvailableSlotsAsync()
         {
             return await _bookingRepository.GetAvailableSlotsAsync();
+        }
+
+        public async Task<List<Booking>> GetUserRecentBookingsAsync(int userId)
+        {
+            return await _bookingRepository.GetUserRecentBookingsAsync(userId);
         }
 
         public async Task CreateBooking(Booking booking)

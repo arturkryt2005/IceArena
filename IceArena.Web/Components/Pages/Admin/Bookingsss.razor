@@ -95,22 +95,20 @@ else
                     <td>@booking.Status</td>
                     <td>@booking.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                     <td>
-                        @if (booking.UserId.HasValue)
+                        @if (booking.Status == "Booked")
+                        {
+                            <span>-</span>
+                        }
+                        else if (booking.Status == "Pending")
                         {
                             <div>
-                                <button class="btn btn-success" @onclick="() => AcceptBooking(booking.Id, user?.Email)">
+                                <button class="btn btn-success" @onclick="() => OnAcceptBooking(booking.Id, user?.Email)">
                                     Подтвердить
                                 </button>
-                                <button class="btn btn-danger" @onclick="() => CancelBooking(booking.Id)" style="margin-left: 10px;">
+                                <button class="btn btn-danger" @onclick="() => OnCancelBooking(booking.Id)" style="margin-left: 10px;">
                                     Отменить
                                 </button>
                             </div>
-                        }
-                        else if (booking.Status == "Available" || booking.Status == "Pending")
-                        {
-                            <button class="btn btn-danger" @onclick="() => CancelBooking(booking.Id)">
-                                Отменить
-                            </button>
                         }
                         else
                         {
@@ -120,7 +118,7 @@ else
                     <td>
                         @if (booking.Status == "Cancelled")
                         {
-                            <button class="btn btn-danger" @onclick="() => DeleteBooking(booking.Id)">
+                            <button class="btn btn-danger" @onclick="() => OnDeleteBooking(booking.Id)">
                                 Удалить
                             </button>
                         }
@@ -139,7 +137,20 @@ else
         <div class="modal-overlay" @onclick="CloseModal">
             <div class="modal-content" @onclick:stopPropagation>
                 <h5>@modalMessage</h5>
-                <button class="btn btn-primary" @onclick="CloseModal">Закрыть</button>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary" @onclick="ConfirmAction">Подтвердить</button>
+                    <button class="btn btn-secondary" @onclick="CloseModal">Отмена</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (showInfoModal)
+    {
+        <div class="modal-overlay" @onclick="CloseInfoModal">
+            <div class="modal-content" @onclick:stopPropagation>
+                <h5>@infoModalMessage</h5>
+                <button class="btn btn-primary" @onclick="CloseInfoModal">Закрыть</button>
             </div>
         </div>
     }
@@ -156,14 +167,32 @@ else
     private DateTime selectedDate = DateTime.UtcNow.Date;
     private TimeOnly? selectedTime = TimeOnly.FromDateTime(DateTime.UtcNow);
     private bool showModal = false;
+    private bool showInfoModal = false;
     private string modalMessage = "";
+    private string infoModalMessage = "";
+    private string currentAction = "";
+    private int currentBookingId = 0;
+    private string? currentUserEmail = null;
 
     protected override async Task OnInitializedAsync()
     {
         bookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
         users = await Http.GetFromJsonAsync<List<User>>("api/User");
     }
+    private void OnAcceptBooking(int bookingId, string? userEmail)
+    {
+        ShowConfirmationModal("accept", bookingId, userEmail);
+    }
 
+    private void OnCancelBooking(int bookingId)
+    {
+        ShowConfirmationModal("cancel", bookingId);
+    }
+
+    private void OnDeleteBooking(int bookingId)
+    {
+        ShowConfirmationModal("delete", bookingId);
+    }
     private List<Booking> sortedBookings => sortOption switch
     {
         "dateAsc" => bookings?.OrderBy(b => b.CreatedAt).ToList() ?? new List<Booking>(),
@@ -176,7 +205,7 @@ else
     {
         if (!selectedTime.HasValue)
         {
-            ShowModal("Пожалуйста, укажите время.");
+            ShowInfoModal("Пожалуйста, укажите время.");
             return;
         }
 
@@ -185,13 +214,13 @@ else
 
         if (newBooking.Date < DateTime.UtcNow)
         {
-            ShowModal("Нельзя создать слот на прошедшее время.");
+            ShowInfoModal("Нельзя создать слот на прошедшее время.");
             return;
         }
 
         if (newBooking.Date == DateTime.MinValue || newBooking.Duration <= 0)
         {
-            ShowModal("Пожалуйста, укажите корректные дату и длительность.");
+            ShowInfoModal("Пожалуйста, укажите корректные дату и длительность.");
             return;
         }
 
@@ -203,7 +232,7 @@ else
             DateTime existingEnd = existingBooking.Date.AddMinutes(existingBooking.Duration);
             if (newStart < existingEnd && newEnd > existingStart)
             {
-                ShowModal("Этот слот пересекается с уже существующим бронированием.");
+                ShowInfoModal("Этот слот пересекается с уже существующим бронированием.");
                 return;
             }
         }
@@ -237,6 +266,49 @@ else
         }
     }
 
+    private void ShowConfirmationModal(string action, int bookingId, string? userEmail = null)
+    {
+        currentAction = action;
+        currentBookingId = bookingId;
+        currentUserEmail = userEmail;
+
+        modalMessage = action switch
+        {
+            "accept" => "Вы уверены, что хотите подтвердить это бронирование?",
+            "cancel" => "Вы уверены, что хотите отменить это бронирование?",
+            "delete" => "Вы уверены, что хотите удалить это бронирование?",
+            _ => "Подтвердите действие"
+        };
+
+        showModal = true;
+        StateHasChanged();
+    }
+
+    private async Task ConfirmAction()
+    {
+        showModal = false;
+
+        try
+        {
+            switch (currentAction)
+            {
+                case "accept":
+                    await AcceptBooking(currentBookingId, currentUserEmail);
+                    break;
+                case "cancel":
+                    await CancelBooking(currentBookingId);
+                    break;
+                case "delete":
+                    await DeleteBooking(currentBookingId);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowInfoModal($"Ошибка при выполнении действия: {ex.Message}");
+        }
+    }
+
     private async Task AcceptBooking(int bookingId, string? userEmail)
     {
         if (string.IsNullOrEmpty(userEmail))
@@ -246,11 +318,9 @@ else
         }
 
         var result = await EmailService.SendMessage(userEmail);
-
         if (result.Success)
         {
             Message = $"Письмо успешно отправлено на {userEmail}";
-
             var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
             if (booking != null)
             {
@@ -258,16 +328,20 @@ else
                 var response = await Http.PutAsJsonAsync($"api/Booking/{bookingId}/status", statusDto);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Message = $"Письмо отправлено, но не удалось обновить статус: {response.ReasonPhrase}";
-                    booking.Status = "Pending";
+                    ShowInfoModal($"Письмо отправлено, но не удалось обновить статус: {response.ReasonPhrase}");
+                    booking.Status = "Booked";
+                }
+                else
+                {
+                    booking.Status = "Booked";
+                    ShowInfoModal("Бронирование успешно подтверждено и письмо отправлено.");
                 }
             }
-
             StateHasChanged();
         }
         else
         {
-            Message = $"Ошибка при отправке письма: {result.ErrorMessage}";
+            ShowInfoModal($"Ошибка при отправке письма: {result.ErrorMessage}");
         }
     }
 
@@ -277,12 +351,12 @@ else
         if (response.IsSuccessStatusCode)
         {
             bookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking");
-            Message = "Бронирование успешно удалено.";
+            ShowInfoModal("Бронирование успешно удалено.");
             StateHasChanged();
         }
         else
         {
-            Message = $"Ошибка при удалении: {response.ReasonPhrase}";
+            ShowInfoModal($"Ошибка при удалении: {response.ReasonPhrase}");
         }
     }
 
@@ -296,21 +370,20 @@ else
             if (booking != null)
             {
                 booking.Status = "Cancelled";
-                Message = "Бронирование успешно отменено.";
+                ShowInfoModal("Бронирование успешно отменено.");
                 StateHasChanged();
             }
         }
         else
         {
-            Message = $"Ошибка при отмене: {response.ReasonPhrase}";
+            ShowInfoModal($"Ошибка при отмене: {response.ReasonPhrase}");
         }
     }
 
-
-    private void ShowModal(string message)
+    private void ShowInfoModal(string message)
     {
-        modalMessage = message;
-        showModal = true;
+        infoModalMessage = message;
+        showInfoModal = true;
         StateHasChanged();
     }
 
@@ -320,6 +393,11 @@ else
         modalMessage = "";
         StateHasChanged();
     }
-}
 
-   
+    private void CloseInfoModal()
+    {
+        showInfoModal = false;
+        infoModalMessage = "";
+        StateHasChanged();
+    }
+}

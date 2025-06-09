@@ -14,6 +14,6 @@ namespace IceArena.Services.Interfaces
         Task DeleteBooking(int id);
         Task ConfirmBookingAsync(int bookingId, int userId);
         Task SaveChangesAsync();
-
+        Task<List<Booking>> GetUserRecentBookingsAsync(int userId);
     }
 }

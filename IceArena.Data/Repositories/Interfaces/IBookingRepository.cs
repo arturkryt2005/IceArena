@@ -9,6 +9,7 @@ namespace IceArena.Data.Repositories.Interfaces
         Task<IEnumerable<Booking>> GetAvailableSlotsAsync(DateTime date);
         Task<IEnumerable<Booking>> GetAvailableSlotsAsync();
         Task<IEnumerable<Booking>> GetUserBookingsAsync(int userId);
+        Task<List<Booking>> GetUserRecentBookingsAsync(int userId);
         Task AddAsync(Booking booking);
         Task UpdateAsync(Booking booking);
         Task DeleteAsync(int id);
