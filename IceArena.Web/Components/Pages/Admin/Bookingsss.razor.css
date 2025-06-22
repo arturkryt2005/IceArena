@@ -1,22 +1,22 @@
 ﻿body {
     background-color: #121212;
     color: #f0f0f0;
-    font-family: 'Montserrat';
+    font-family: 'Montserrat', sans-serif;
     line-height: 1.6;
+    margin: 0;
 }
 
 .bookings-container {
-    font-family: 'Montserrat';
     max-width: 1200px;
     margin: 30px auto;
     padding: 30px;
     background-color: #1e1e1e;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
 h3 {
-    font-family: 'Montserrat';
     color: #ffd166;
     font-size: 28px;
     font-weight: 600;
@@ -24,10 +24,10 @@ h3 {
     border-bottom: 2px solid #ffd166;
     padding-bottom: 15px;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 h4 {
-    font-family: 'Montserrat';
     color: #ffd166;
     font-size: 22px;
     font-weight: 500;
@@ -36,7 +36,6 @@ h4 {
 }
 
 h5 {
-    font-family: 'Montserrat';
     color: #ffb3b3;
     font-size: 18px;
     font-weight: 500;
@@ -45,21 +44,23 @@ h5 {
 }
 
 .booking-form {
-    font-family: 'Montserrat';
     background-color: #252525;
     padding: 25px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     margin-bottom: 30px;
+    transition: transform 0.3s ease;
 }
 
+    .booking-form:hover {
+        transform: translateY(-5px);
+    }
+
 .form-group {
-    font-family: 'Montserrat';
     margin-bottom: 20px;
 }
 
     .form-group label {
-        font-family: 'Montserrat';
         display: block;
         color: #ffd166;
         font-size: 15px;
@@ -68,7 +69,6 @@ h5 {
     }
 
 .form-control {
-    font-family: 'Montserrat';
     width: 100%;
     max-width: 300px;
     padding: 10px 14px;
@@ -82,14 +82,12 @@ h5 {
 }
 
     .form-control:focus {
-        font-family: 'Montserrat';
-        outline: none;
         border-color: #ffd166;
-        box-shadow: 0 0 5px rgba(255, 209, 102, 0.3);
+        box-shadow: 0 0 8px rgba(255, 209, 102, 0.4);
+        transform: scale(1.02);
     }
 
 .sort-options {
-    font-family: 'Montserrat';
     margin-bottom: 30px;
     display: flex;
     align-items: center;
@@ -97,42 +95,44 @@ h5 {
 }
 
     .sort-options label {
-        font-family: 'Montserrat';
         font-weight: 500;
         color: #ffd166;
         font-size: 16px;
     }
 
     .sort-options select {
-        font-family: 'Montserrat';
         padding: 10px 16px;
         border: 1px solid #ffd166;
         border-radius: 6px;
         background-color: #2a2a2a;
         color: #ffd166;
         font-size: 15px;
-        font-family: 'Montserrat', sans-serif;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        cursor: pointer;
     }
 
         .sort-options select:hover {
-            border-color: #ffd166;
-            font-family: 'Montserrat';
-            box-shadow: 0 2px 8px rgba(255, 209, 102, 0.2);
+            background-color: #333;
+            box-shadow: 0 2px 8px rgba(255, 209, 102, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .sort-options select:focus {
+            outline: none;
+            border-color: #ffdf8e;
         }
 
 .booking-table {
-    font-family: 'Montserrat';
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    background-color: #1e1e1e;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     overflow: hidden;
 }
 
     .booking-table th {
-        font-family: 'Montserrat';
         background-color: #ffd166;
         color: #1a1a1a;
         padding: 16px 20px;
@@ -140,10 +140,12 @@ h5 {
         font-weight: 600;
         font-size: 15px;
         letter-spacing: 0.3px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
     }
 
     .booking-table td {
-        font-family: 'Montserrat';
         padding: 16px 20px;
         border-bottom: 1px solid #333;
         vertical-align: middle;
@@ -158,10 +160,11 @@ h5 {
 
     .booking-table tr:hover {
         background-color: #2a2a2a;
+        transform: scale(1.01);
+        transition: all 0.2s ease;
     }
 
 .booking-row.pending {
-    font-family: 'Montserrat';
     background-color: rgba(255, 209, 102, 0.08);
     border-left: 4px solid #ffd166;
 }
@@ -182,7 +185,6 @@ h5 {
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
     font-size: 14px;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -198,15 +200,15 @@ h5 {
         box-shadow: 0 4px 12px rgba(255, 209, 102, 0.3);
     }
 
-.btn-warning {
-    background-color: #ff8c00;
+.btn-success {
+    background-color: #6ab04c;
     color: #fff;
 }
 
-    .btn-warning:hover {
-        background-color: #ffa726;
+    .btn-success:hover {
+        background-color: #82c91e;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+        box-shadow: 0 4px 12px rgba(106, 176, 76, 0.3);
     }
 
 .btn-danger {
@@ -220,6 +222,11 @@ h5 {
         box-shadow: 0 4px 12px rgba(238, 82, 83, 0.3);
     }
 
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
 .message {
     margin-top: 30px;
     padding: 15px 20px;
@@ -227,6 +234,7 @@ h5 {
     border-left: 4px solid;
     font-size: 15px;
     font-weight: 500;
+    animation: slideIn 0.3s ease;
 }
 
 .message-success {
@@ -259,7 +267,7 @@ p {
     margin: 15px 0;
 }
 
-@@keyframes fadeIn {
+@keyframes fadeIn {
     from {
         opacity: 0;
         transform: translateY(10px);
@@ -271,17 +279,21 @@ p {
     }
 }
 
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 .booking-table tr {
     animation: fadeIn 0.4s ease-out forwards;
 }
-
-    .booking-table tr:nth-child(1) {
-        animation-delay: 0.1s;
-    }
-
-    .booking-table tr:nth-child(2) {
-        animation-delay: 0.2s;
-    }
 
 .modal-overlay {
     position: fixed;
@@ -294,6 +306,7 @@ p {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
@@ -305,6 +318,7 @@ p {
     width: 90%;
     text-align: center;
     border-left: 4px solid #ee5253;
+    animation: slideIn 0.3s ease;
 }
 
     .modal-content .btn {
@@ -312,35 +326,355 @@ p {
         width: 100%;
     }
 
-
-.booking-table tr:nth-child(1) {
-    animation-delay: 0.1s;
-}
-
-    .booking-table tr:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 400px;
-    text-align: center;
-}
-
 .modal-buttons {
     margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* Медиазапросы для планшетов (max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+    .bookings-container {
+        margin: 20px;
+        padding: 20px;
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    h3 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ffd166;
+    }
+
+    h4 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    h5 {
+        font-size: 16px;
+    }
+
+    .booking-form {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        background: linear-gradient(145deg, #252525, #2c2c2c);
+    }
+
+        .booking-form:hover {
+            transform: translateY(-3px);
+        }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        max-width: 100%;
+        font-size: 13px;
+        padding: 8px 12px;
+        border-radius: 5px;
+    }
+
+    .sort-options {
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+        .sort-options label, .sort-options select {
+            font-size: 14px;
+        }
+
+        .sort-options select {
+            padding: 8px 12px;
+            background: linear-gradient(145deg, #2a2a2a, #333);
+        }
+
+    .booking-table {
+        font-size: 13px;
+        border-radius: 8px;
+    }
+
+        .booking-table th, .booking-table td {
+            padding: 12px 15px;
+        }
+
+            .booking-table th:nth-child(1), .booking-table td:nth-child(1) {
+                min-width: 60px; /* ID */
+            }
+
+            .booking-table th:nth-child(2), .booking-table td:nth-child(2) {
+                min-width: 200px; /* Пользователь */
+            }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+        border-radius: 5px;
+    }
+
+    .modal-content {
+        max-width: 350px;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .message {
+        font-size: 14px;
+        padding: 12px 15px;
+        border-radius: 6px;
+    }
+
+    .user-info {
+        font-size: 13px;
+    }
+}
+
+/* Медиазапросы для мобильных устройств (max-width: 768px) */
+@media screen and (max-width: 768px) {
+    .bookings-container {
+        margin: 15px;
+        padding: 15px;
+        border-radius: 6px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h3 {
+        font-size: 20px;
+        margin-bottom: 15px;
+        border-bottom: none;
+        text-align: center;
+    }
+
+    h4 {
+        font-size: 18px;
+        margin-bottom: 12px;
+        text-align: center;
+    }
+
+    h5 {
+        font-size: 15px;
+    }
+
+    .booking-form {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+        background: linear-gradient(145deg, #252525, #2c2c2c);
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .form-group label {
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+    .form-control {
+        font-size: 12px;
+        padding: 7px 10px;
+        border-radius: 4px;
+    }
+
+    .sort-options {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+        .sort-options label, .sort-options select {
+            font-size: 13px;
+        }
+
+        .sort-options select {
+            padding: 7px 10px;
+            width: 100%;
+            background: linear-gradient(145deg, #2a2a2a, #333);
+        }
+
+    .booking-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        width: 100%;
+    }
+
+        .booking-table::-webkit-scrollbar {
+            display: none;
+        }
+
+        .booking-table th, .booking-table td {
+            padding: 10px 12px;
+            font-size: 12px;
+            min-width: 120px;
+        }
+
+            .booking-table th:nth-child(1), .booking-table td:nth-child(1) {
+                min-width: 50px; /* ID */
+                display: none; /* Скрываем ID */
+            }
+
+            .booking-table th:nth-child(2), .booking-table td:nth-child(2) {
+                min-width: 180px; /* Пользователь */
+            }
+
+            .booking-table th:nth-child(6), .booking-table td:nth-child(6) {
+                min-width: 100px; /* Создано */
+                display: none; /* Скрываем Создано */
+            }
+
+        .booking-table th {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(145deg, #ffd166, #ffdf8e);
+        }
+
+    .btn {
+        padding: 7px 14px;
+        font-size: 12px;
+        border-radius: 4px;
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .modal-content {
+        max-width: 320px;
+        padding: 15px;
+        border-radius: 6px;
+        border-left: 3px solid #ee5253;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .message {
+        font-size: 13px;
+        padding: 10px 12px;
+        border-radius: 5px;
+    }
+
+    .user-info {
+        font-size: 12px;
+    }
+
+        .user-info strong {
+            font-size: 13px;
+        }
+}
+
+/* Медиазапросы для маленьких мобильных устройств (max-width: 480px) */
+@media screen and (max-width: 480px) {
+    .bookings-container {
+        margin: 10px;
+        padding: 10px;
+        border-radius: 6px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h3 {
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+
+    h4 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    h5 {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .booking-form {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 6px;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+        .form-group label {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+    .form-control {
+        font-size: 11px;
+        padding: 6px 8px;
+        border-radius: 4px;
+    }
+
+    .sort-options {
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+        .sort-options label, .sort-options select {
+            font-size: 12px;
+        }
+
+        .sort-options select {
+            padding: 6px 8px;
+        }
+
+    .booking-table th, .booking-table td {
+        padding: 8px 10px;
+        font-size: 11px;
+        min-width: 100px;
+    }
+
+        .booking-table th:nth-child(2), .booking-table td:nth-child(2) {
+            min-width: 160px;
+        }
+
+    .btn {
+        padding: 6px 12px;
+        font-size: 11px;
+        border-radius: 4px;
+    }
+
+    .modal-content {
+        max-width: 280px;
+        padding: 12px;
+        border-radius: 5px;
+    }
+
+        .modal-content .btn {
+            font-size: 11px;
+        }
+
+    .modal-buttons {
+        gap: 6px;
+    }
+
+    .message {
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 4px;
+    }
+
+    .user-info {
+        font-size: 11px;
+    }
+
+        .user-info strong {
+            font-size: 12px;
+        }
 }

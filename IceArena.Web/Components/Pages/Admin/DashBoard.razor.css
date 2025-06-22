@@ -1,15 +1,31 @@
 ﻿body {
-    background: #121212; 
+    background: #121212;
     font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #e0e0e0; 
+    color: #e0e0e0;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.stats-cards {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+
 .card {
     background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
     border-radius: 12px;
-    padding: 10px;
+    padding: 15px;
     width: 180px;
     height: 100px;
     text-align: center;
@@ -19,6 +35,17 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
+    }
+
+.card-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #ffca28;
 }
 
 .card-content {
@@ -50,6 +77,7 @@
         white-space: nowrap;
         max-width: 100%;
     }
+
 h3 {
     color: #ffffff;
     font-size: 28px;
@@ -59,63 +87,6 @@ h3 {
     text-transform: uppercase;
     letter-spacing: 3px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.dashboard-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 30px;
-    animation: fadeIn 0.8s ease-in-out;
-}
-
-.stats-cards {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 50px;
-}
-
-.card {
-    background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
-    border-radius: 12px;
-    padding: 15px;
-    width: 150px;
-    height: 100px;
-    text-align: center;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-    .card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
-    }
-
-.card-icon {
-    font-size: 24px;
-    margin-bottom: 8px;
-    color: #ffca28; 
-}
-
-.card-content h4 {
-    font-size: 14px;
-    font-weight: 500;
-    margin: 0 0 5px;
-    color: #ffca28;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.card-content p {
-    font-size: 20px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0;
 }
 
 .recent-actions {
@@ -249,23 +220,30 @@ h3 {
     }
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 1024px) {
     .dashboard-container {
-        padding: 15px;
+        padding: 20px;
+        max-width: 900px;
     }
 
     .stats-cards {
-        gap: 10px;
+        gap: 12px;
+        justify-content: center;
     }
 
     .card {
-        width: 120px;
+        width: 160px;
         height: 90px;
-        padding: 10px;
+        padding: 12px;
+    }
+
+    .card-icon {
+        font-size: 22px;
+        margin-bottom: 6px;
     }
 
     .card-content h4 {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .card-content p {
@@ -275,39 +253,190 @@ h3 {
     .recent-actions,
     .booking-trends,
     .booking-status {
-        padding: 15px;
+        padding: 20px;
+        margin-bottom: 40px;
     }
+
+        .recent-actions h4,
+        .booking-trends h4,
+        .booking-status h4 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
 
     .actions-table th,
     .actions-table td {
-        padding: 10px;
-        font-size: 12px;
+        padding: 12px 15px;
+        font-size: 13px;
+    }
+
+    .booking-trends canvas,
+    .booking-status canvas {
+        width: 100% !important;
+        height: 180px !important;
+    }
+
+    .action-buttons {
+        gap: 15px;
+        margin-top: 30px;
     }
 
     .btn {
-        padding: 10px 20px;
-        font-size: 12px;
+        padding: 10px 25px;
+        font-size: 13px;
     }
 }
 
-@media (max-width: 480px) {
+@media screen and (max-width: 768px) {
+    .dashboard-container {
+        padding: 15px;
+        max-width: 100%;
+    }
+
     .stats-cards {
+        gap: 10px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .card {
+        width: 140px;
+        height: 85px;
+        padding: 10px;
+    }
+
+    .card-icon {
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+
+    .card-content h4 {
+        font-size: 12px;
+        letter-spacing: 0.8px;
+    }
+
+    .card-content p {
+        font-size: 16px;
+    }
+
+    .recent-actions,
+    .booking-trends,
+    .booking-status {
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+
+        .recent-actions h4,
+        .booking-trends h4,
+        .booking-status h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+    .actions-table th,
+    .actions-table td {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .booking-trends canvas,
+    .booking-status canvas {
+        width: 100% !important;
+        height: 150px !important;
+    }
+
+    .booking-trends p,
+    .booking-status p {
+        font-size: 12px;
+        margin-top: 10px;
+    }
+
+    .action-buttons {
+        gap: 12px;
         flex-direction: column;
         align-items: center;
     }
 
-    .card {
+    .btn {
+        padding: 8px 20px;
+        font-size: 12px;
         width: 100%;
         max-width: 200px;
     }
+}
+
+@media screen and (max-width: 480px) {
+    .dashboard-container {
+        padding: 10px;
+    }
+
+    .stats-cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 160px;
+        height: 80px;
+        padding: 8px;
+    }
+
+    .card-icon {
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .card-content h4 {
+        font-size: 11px;
+        letter-spacing: 0.6px;
+    }
+
+    .card-content p {
+        font-size: 14px;
+    }
+
+    .recent-actions,
+    .booking-trends,
+    .booking-status {
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+
+        .recent-actions h4,
+        .booking-trends h4,
+        .booking-status h4 {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+    .actions-table th,
+    .actions-table td {
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+
+    .booking-trends canvas,
+    .booking-status canvas {
+        width: 100% !important;
+        height: 120px !important;
+    }
+
+    .booking-trends p,
+    .booking-status p {
+        font-size: 11px;
+        margin-top: 8px;
+    }
 
     .action-buttons {
-        flex-direction: column;
         gap: 10px;
     }
 
     .btn {
-        width: 100%;
-        max-width: 200px;
+        padding: 8px 16px;
+        font-size: 11px;
+        max-width: 160px;
     }
 }

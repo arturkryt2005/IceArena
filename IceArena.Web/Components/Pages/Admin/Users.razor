@@ -1,11 +1,37 @@
 ﻿@page "/users"
 @using IceArena.Data.Models
 @using IceArena.Data.Requests
+@using Blazored.LocalStorage
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 @inject HttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ILocalStorageService LocalStorage
 @rendermode InteractiveServer
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 <PageTitle>Пользователи</PageTitle>
+
+<style>
+    .notification-message {
+        color: #ffffff;
+        background-color: #dc3545;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-size: 0.9em;
+        text-align: center;
+    }
+    .success-message {
+        color: #ffffff;
+        background-color: #28a745;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-size: 0.9em;
+        text-align: center;
+    }
+</style>
 
 <div class="dark-theme">
     <h3 class="page-title">Пользователи</h3>
@@ -39,7 +65,11 @@
 
         @if (!string.IsNullOrEmpty(errorMessage))
         {
-            <div class="error-message">@errorMessage</div>
+            <div class="notification-message">@errorMessage</div>
+        }
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="success-message">@successMessage</div>
         }
     </div>
 
@@ -47,10 +77,14 @@
     {
         <p>Загрузка...</p>
     }
+    else if (users.Count == 0 || (users.Count == 1 && users.Any(u => u.Id.ToString() == currentUserId)))
+    {
+        <p>Пользователи не найдены.</p>
+    }
     else
     {
         <div class="users-list">
-            @foreach (var user in users)
+            @foreach (var user in users.Where(u => u.Id.ToString() != currentUserId))
             {
                 <div class="user-card">
                     <h4>@user.Username</h4>
@@ -69,14 +103,57 @@
     private string password = "";
     private string username = "";
     private string errorMessage = "";
+    private string successMessage = "";
     private string emailError = "";
     private string usernameError = "";
     private string passwordError = "";
     private List<User>? users;
+    private string? currentUserId;
+    private bool isInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
-        users = await Http.GetFromJsonAsync<List<User>>("api/User");
+        try
+        {
+            users = await Http.GetFromJsonAsync<List<User>>("api/User");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка при загрузке пользователей: {ex.Message}";
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isInitialized)
+        {
+            try
+            {
+                currentUserId = await LocalStorage.GetItemAsync<string>("userId");
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                    currentUserId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                }
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    errorMessage = "Ошибка: не удалось определить текущего пользователя.";
+                }
+                else
+                {
+                    Console.WriteLine($"currentUserId: {currentUserId}");
+                }
+
+                isInitialized = true;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Ошибка при получении текущего пользователя: {ex.Message}";
+            }
+        }
     }
 
     private async Task RegisterAdmin()
@@ -85,6 +162,7 @@
         usernameError = "";
         passwordError = "";
         errorMessage = "";
+        successMessage = "";
 
         if (string.IsNullOrEmpty(email))
         {
@@ -131,33 +209,94 @@
         }
 
         var request = new RegisterRequest
-            {
-                Email = email,
-                Password = password,
-                Username = username
-            };
+        {
+            Email = email,
+            Password = password,
+            Username = username
+        };
 
-        var response = await Http.PostAsJsonAsync("api/Auth/register-admin", request);
-        if (response.IsSuccessStatusCode)
+        try
         {
-            users = await Http.GetFromJsonAsync<List<User>>("api/User");
+            var response = await Http.PostAsJsonAsync("api/Auth/register-admin", request);
+            if (response.IsSuccessStatusCode)
+            {
+                users = await Http.GetFromJsonAsync<List<User>>("api/User");
+                email = "";
+                username = "";
+                password = "";
+                successMessage = "Админ успешно добавлен.";
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Ошибка при добавлении пользователя: {errorContent}";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            errorMessage = "Ошибка при добавлении пользователя.";
+            errorMessage = $"Ошибка при регистрации: {ex.Message}";
         }
     }
 
     private async Task DeleteUser(int userId)
     {
-        var response = await Http.DeleteAsync($"api/User/{userId}");
-        if (response.IsSuccessStatusCode)
+        errorMessage = "";
+        successMessage = "";
+        Console.WriteLine($"Attempting to delete user with ID: {userId}, currentUserId: {currentUserId}");
+
+        if (string.IsNullOrEmpty(currentUserId))
         {
-            users = await Http.GetFromJsonAsync<List<User>>("api/User");
+            errorMessage = "Ошибка: текущий пользователь не идентифицирован.";
+            Console.WriteLine("DeleteUser: currentUserId is empty");
+            return;
         }
-        else
+
+        if (userId.ToString() == currentUserId)
         {
-            errorMessage = "Ошибка при удалении пользователя.";
+            errorMessage = "Вы не можете удалить свою учетную запись.";
+            Console.WriteLine("DeleteUser: Attempted to delete own account");
+            return;
+        }
+
+        try
+        {
+            var requestUri = $"api/User/{userId}";
+            Console.WriteLine($"Sending DELETE request to: {requestUri}");
+            var response = await Http.DeleteAsync(requestUri);
+            Console.WriteLine($"Response status code: {response.StatusCode}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("User deleted successfully, refreshing user list");
+                users = await Http.GetFromJsonAsync<List<User>>("api/User");
+                successMessage = "Пользователь успешно удалён.";
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError && errorContent.Contains("23503") && errorContent.Contains("FK_bookings_users_user_id"))
+                {
+                    errorMessage = "Этот пользователь участвует в бронировании и не может быть удалён.";
+                }
+                else
+                {
+                    try
+                    {
+                        var errorJson = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(errorContent);
+                        errorMessage = errorJson?["Error"] ?? $"Ошибка при удалении пользователя: {errorContent}";
+                    }
+                    catch
+                    {
+                        errorMessage = $"Ошибка при удалении пользователя: {errorContent}";
+                    }
+                }
+                Console.WriteLine($"DeleteUser error: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка при удалении: {ex.Message}";
+            Console.WriteLine($"DeleteUser exception: {ex.Message}");
         }
     }
 }

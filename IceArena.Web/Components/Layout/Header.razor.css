@@ -1,55 +1,184 @@
 ﻿body {
-    
+    margin: 0;
 }
 
 header {
     top: 0;
     width: 100%;
     height: 10vh;
-    background-color: black;
+    background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 3%;
-    position: relative;
+    padding: 12px 4%;
     position: fixed;
-    z-index:5;
+    z-index: 5;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
+    overflow: hidden;
+    min-height: 60px;
 }
 
-.logoled{
-    width:40px;
-    height:40px;
-    border-radius:5px;
+.logoled {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
     cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
 }
+
+    .logoled:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+    }
 
 nav {
-    width: 80%;
+    max-width: 80%;
     display: flex;
-    justify-content: space-between;
-    font-family: Montserrat;
+    justify-content: flex-end;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    gap: 16px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; 
 }
+
+    nav::-webkit-scrollbar {
+        display: none; 
+    }
 
 .headera {
-    color: white;
+    color: #ffffff;
     text-decoration: none;
-    font-size:20px;
+    font-size: 20px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
+    padding: 4px 8px;
 }
 
-.headera:hover{
-    color:gold;
-}
+    .headera:hover {
+        color: #ffd700;
+    }
 
 .vhodavtor {
     border: none;
-    background-color: gold;
+    background: linear-gradient(45deg, #ffd700, #ffeb3b);
     padding: 8px 28px;
     border-radius: 7px;
-    color: white;
-    transition: background-color 0.3s, color 0.3s;
+    color: #1a1a1a;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
 }
 
     .vhodavtor:hover {
-        color: gold;
-        background-color: white;
+        background: #ffffff;
+        color: #ffd700;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     }
+
+@media screen and (max-width: 1024px) {
+    header {
+        height: 9vh;
+        padding: 8px 3%;
+        background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
+        min-height: 55px;
+        align-items: center;
+    }
+
+    .logoled {
+        width: 36px;
+        height: 36px;
+    }
+
+    nav {
+        max-width: 82%;
+        gap: 10px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .headera {
+        font-size: 16px;
+        padding: 3px 6px;
+    }
+
+    .vhodavtor {
+        padding: 6px 20px;
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    header {
+        height: 8vh;
+        padding: 6px 3%;
+        min-height: 50px;
+        align-items: center;
+    }
+
+    .logoled {
+        width: 32px;
+        height: 32px;
+    }
+
+    nav {
+        max-width: 78%;
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+    .headera {
+        font-size: 14px;
+        padding: 2px 5px;
+    }
+
+    .vhodavtor {
+        padding: 5px 16px;
+        font-size: 13px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    header {
+        height: 7vh;
+        padding: 4px 2%;
+        min-height: 45px;
+        align-items: center;
+    }
+
+    .logoled {
+        width: 28px;
+        height: 28px;
+    }
+
+    nav {
+        max-width: 75%;
+        gap: 6px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+    .headera {
+        font-size: 12px;
+        padding: 2px 4px;
+    }
+
+    .vhodavtor {
+        padding: 4px 12px;
+        font-size: 11px;
+    }
+}
