@@ -30,7 +30,6 @@
                 <tr>
                     <th>ID</th>
                     <th>Название</th>
-                    <th>Создано</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -40,7 +39,6 @@
                     <tr>
                         <td>@team.Id</td>
                         <td>@team.Name</td>
-                        <td>@team.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                         <td>
                             <button class="btn btn-sm btn-warning" @onclick="() => OpenEditTeamModal(team)">Редактировать</button>
                             <button class="btn btn-sm btn-danger" @onclick="() => DeleteTeam(team.Id)" style="margin-left: 5px;">Удалить</button>

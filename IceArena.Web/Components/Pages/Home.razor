@@ -26,40 +26,6 @@
 </div>
 
 <PageTitle>Главная</PageTitle>
-<h3 class="zagolovki">Список матчей</h3>
-
-@if (matches == null)
-{
-    <p>Загрузка...</p>
-}
-else
-{
-    <div class="matchesdiv">
-        <table class="match-table">
-            <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Команда 1</th>
-                    <th>Команда 2</th>
-                    <th>Место проведения</th>
-                    <th>Статус</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var match in matches)
-                {
-                    <tr>
-                        <td>@match.MatchDate?.ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>@match.Team1Name</td>
-                        <td>@match.Team1Name</td>
-                        <td>@(match.Location ?? "Не указано")</td>
-                        <td>@(match.Result ?? "Планируется")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
 
 <div class="announcements-carousel-container mt-5">
     <h2 class="zag">Новости и объявления</h2>
